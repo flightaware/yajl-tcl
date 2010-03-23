@@ -27,6 +27,22 @@ yajltcl_print_callback (void *context, const char *str, unsigned int len)
     Tcl_DStringAppend (&yajlData->dString, str, len);
 }
 
+void
+yajltcl_recreate_generator (yajltcl_clientData *yajlData)
+{
+    yajl_gen_config yConfig;
+
+    if (yajlData->handle != NULL) {
+	yajl_gen_free (yajlData->handle);
+    }
+
+    yConfig.beautify = 0;
+    yConfig.indentString = "\t";
+    Tcl_DStringFree (&yajlData->dString);
+
+    yajlData->handle = yajl_gen_alloc2 (yajltcl_print_callback, &yConfig, NULL, yajlData);
+}
+
 
 /*
  *----------------------------------------------------------------------
@@ -64,6 +80,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	"string",
 	"free",
 	"get",
+	"reset",
 	NULL
     };
 
@@ -80,7 +97,8 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	OPT_NUMBER,
 	OPT_STRING,
 	OPT_FREE,
-	OPT_GET
+	OPT_GET,
+	OPT_RESET
     };
 
     if (objc < 2) {
@@ -124,6 +142,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  case OPT_GET: {
 	      Tcl_DStringResult (interp, &yajlData->dString);
 	      Tcl_DStringFree (&yajlData->dString);
+	      return TCL_OK;
+	  }
+
+	  case OPT_RESET: {
+	      yajltcl_recreate_generator (yajlData);
 	      return TCL_OK;
 	  }
 
@@ -295,23 +318,19 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     int objc;				/* Number of arguments. */
     Tcl_Obj   *CONST objv[];
 {
-    yajl_gen_config yConfig;
-
-    yajltcl_clientData *yajlData = (yajltcl_clientData *)ckalloc (sizeof (yajltcl_clientData));
-    yajlData->interp = interp;
-    Tcl_DStringInit (&yajlData->dString);
-
-    yConfig.beautify = 1;
-    yConfig.indentString = "\t";
-
-    yajlData->handle = yajl_gen_alloc2 (yajltcl_print_callback, &yConfig, NULL, yajlData);
-
+    yajltcl_clientData *yajlData;
 
     if (objc != 3) {
         Tcl_WrongNumArgs (interp, 1, objv, "create name");
 	return TCL_ERROR;
     }
 
+    yajlData = (yajltcl_clientData *)ckalloc (sizeof (yajltcl_clientData));
+    yajlData->interp = interp;
+    yajlData->handle = NULL;
+    Tcl_DStringInit (&yajlData->dString);
+
+    yajltcl_recreate_generator (yajlData);
 
     Tcl_CreateObjCommand (interp, Tcl_GetString (objv[2]), yajltcl_yajlObjectObjCmd, yajlData, NULL);
 
