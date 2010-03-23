@@ -22,9 +22,9 @@
 void
 yajltcl_print_callback (void *context, const char *str, unsigned int len)
 {
-    // yajltcl_clientData *yajlData = (yajltcl_clientData *)context;
+    yajltcl_clientData *yajlData = (yajltcl_clientData *)context;
 
-    printf("print callback '%s'\n", str);
+    Tcl_DStringAppend (&yajlData->dString, str, len);
 }
 
 
@@ -44,8 +44,8 @@ int
 yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[])
 {
     int         optIndex;
-    yajltcl_clientData *yajlClientData = (yajltcl_clientData *)cData;
-    yajl_gen hand = yajlClientData->handle;
+    yajltcl_clientData *yajlData = (yajltcl_clientData *)cData;
+    yajl_gen hand = yajlData->handle;
     yajl_gen_status status = yajl_gen_status_ok;
     char *errString = NULL;
 
@@ -62,6 +62,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	"number",
 	"string",
 	"free",
+	"get",
 	NULL
     };
 
@@ -77,11 +78,12 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	OPT_NULL,
 	OPT_NUMBER,
 	OPT_STRING,
-	OPT_FREE
+	OPT_FREE,
+	OPT_GET
     };
 
     if ((objc < 2) || (objc > 3)) {
-        Tcl_WrongNumArgs (interp, 2, objv, "option ?value?");
+        Tcl_WrongNumArgs (interp, 1, objv, "option ?value?");
 	return TCL_ERROR;
     }
 
@@ -132,6 +134,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  }
           yajl_gen_clear (hand);
 	  status = yajl_gen_status_ok;
+	  Tcl_DStringFree (&yajlData->dString);
 	  break;
       }
 
@@ -205,6 +208,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
           number = Tcl_GetStringFromObj (objv[2], &len);
 	  status = yajl_gen_number (hand, number, len);
+	  break;
       }
 
       case OPT_STRING: {
@@ -218,9 +222,20 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
           string = Tcl_GetStringFromObj (objv[2], &len);
 	  status = yajl_gen_string (hand, (unsigned char *)string, len);
+	  break;
       }
 
       case OPT_FREE: {
+      }
+
+      case OPT_GET: {
+	  if (objc != 2) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "get");
+	    return TCL_ERROR;
+	  }
+
+	  Tcl_DStringResult (interp, &yajlData->dString);
+	  break;
       }
     }
 
@@ -299,6 +314,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
 
     yajltcl_clientData *yajlData = (yajltcl_clientData *)ckalloc (sizeof (yajltcl_clientData));
     yajlData->interp = interp;
+    Tcl_DStringInit (&yajlData->dString);
 
     yConfig.beautify = 0;
     yConfig.indentString = "\t";
@@ -307,7 +323,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
 
 
     if (objc != 3) {
-        Tcl_WrongNumArgs (interp, 2, objv, "create name");
+        Tcl_WrongNumArgs (interp, 1, objv, "create name");
 	return TCL_ERROR;
     }
 
