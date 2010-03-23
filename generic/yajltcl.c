@@ -252,7 +252,15 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	}
 
 	if (errString != NULL) {
+	    char argString[32];
+
 	    Tcl_SetObjResult (interp, Tcl_NewStringObj (errString, -1));
+	    Tcl_AddErrorInfo (interp, " while processing argument ");
+	    sprintf (argString, "%d", arg);
+	    Tcl_AddErrorInfo (interp, argString);
+	    Tcl_AddErrorInfo (interp," \"");
+	    Tcl_AddErrorInfo (interp, Tcl_GetString (objv[arg]));
+	    Tcl_AddErrorInfo (interp, "\"");
 	    return TCL_ERROR;
 	}
     }
