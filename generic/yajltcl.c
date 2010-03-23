@@ -259,7 +259,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  }
 
 	  case yajl_gen_generation_complete: {
-	      errString = "generation complete";
+	      errString = "generation complete, reset the object before reuse";
 	      break;
 	  }
 
@@ -319,9 +319,25 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     Tcl_Obj   *CONST objv[];
 {
     yajltcl_clientData *yajlData;
+    int                 optIndex;
+
+    static CONST char *options[] = {
+        "create",
+	NULL
+    };
+
+    enum options {
+        OPT_CREATE
+    };
+
 
     if (objc != 3) {
         Tcl_WrongNumArgs (interp, 1, objv, "create name");
+	return TCL_ERROR;
+    }
+
+    if (Tcl_GetIndexFromObj (interp, objv[1], options, "option",
+	TCL_EXACT, &optIndex) != TCL_OK) {
 	return TCL_ERROR;
     }
 
