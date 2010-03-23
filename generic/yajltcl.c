@@ -4,6 +4,7 @@
 
 #include <tcl.h>
 #include "yajltcl.h"
+#include <string.h>
 
 
 /*
@@ -320,6 +321,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
 {
     yajltcl_clientData *yajlData;
     int                 optIndex;
+    char               *commandName;
 
     static CONST char *options[] = {
         "create",
@@ -348,8 +350,23 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
 
     yajltcl_recreate_generator (yajlData);
 
-    Tcl_CreateObjCommand (interp, Tcl_GetString (objv[2]), yajltcl_yajlObjectObjCmd, yajlData, NULL);
+    commandName = Tcl_GetString (objv[2]);
 
+    // if commandName is #auto, generate a name
+    if (strcmp (commandName, "#auto") == 0) {
+        unsigned long nextAutoCounter = 0;
+	char *objName;
+	int    baseNameLength;
+
+	objName = Tcl_GetStringFromObj (objv[0], &baseNameLength);
+	baseNameLength += 42;
+	commandName = ckalloc (baseNameLength);
+	snprintf (commandName, baseNameLength, "%s%lu", objName, nextAutoCounter++);
+    }
+
+
+    Tcl_CreateObjCommand (interp, commandName, yajltcl_yajlObjectObjCmd, yajlData, NULL);
+    Tcl_SetObjResult (interp, Tcl_NewStringObj (commandName, -1));
     return TCL_OK;
 }
 
