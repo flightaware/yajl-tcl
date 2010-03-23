@@ -235,6 +235,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  }
 
 	  Tcl_DStringResult (interp, &yajlData->dString);
+	  Tcl_DStringFree (&yajlData->dString);
 	  break;
       }
     }
