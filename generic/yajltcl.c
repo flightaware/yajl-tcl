@@ -46,7 +46,8 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
     int         optIndex;
     yajltcl_clientData *yajlClientData = (yajltcl_clientData *)cData;
     yajl_gen hand = yajlClientData->handle;
-    yajl_gen_status status;
+    yajl_gen_status status = yajl_gen_status_ok;
+    char *errString = NULL;
 
     static CONST char *options[] = {
         "array_open",
@@ -79,6 +80,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	OPT_FREE
     };
 
+    if ((objc < 2) || (objc > 3)) {
+        Tcl_WrongNumArgs (interp, 2, objv, "option ?value?");
+	return TCL_ERROR;
+    }
+
     if (Tcl_GetIndexFromObj (interp, objv[1], options, "option",
         TCL_EXACT, &optIndex) != TCL_OK) {
 	return TCL_ERROR;
@@ -86,17 +92,30 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
     switch ((enum options) optIndex) {
       case OPT_ARRAY_OPEN: {
+	  if (objc != 2) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "array_open");
+	    return TCL_ERROR;
+	  }
           status = yajl_gen_array_open (hand);
 	  break;
       }
 
       case OPT_ARRAY_CLOSE: {
+	  if (objc != 2) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "array_close");
+	    return TCL_ERROR;
+	  }
           status = yajl_gen_array_close (hand);
 	  break;
       }
 
       case OPT_BOOL: {
           int bool;
+
+	  if (objc != 3) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "bool value");
+	    return TCL_ERROR;
+	  }
 
 	  if (Tcl_GetBooleanFromObj (interp, objv[2], &bool) == TCL_ERROR) {
 	      return TCL_ERROR;
@@ -107,6 +126,10 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
       }
 
       case OPT_CLEAR: {
+	  if (objc != 2) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "clear");
+	    return TCL_ERROR;
+	  }
           yajl_gen_clear (hand);
 	  status = yajl_gen_status_ok;
 	  break;
@@ -114,6 +137,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
       case OPT_DOUBLE: {
           double doub;
+
+	  if (objc != 3) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "double value");
+	    return TCL_ERROR;
+	  }
 
           if (Tcl_GetDoubleFromObj (interp, objv[2], &doub) == TCL_ERROR) {
 	      return TCL_ERROR;
@@ -126,6 +154,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
       case OPT_INTEGER: {
           long lon;
 
+	  if (objc != 3) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "integer value");
+	    return TCL_ERROR;
+	  }
+
           if (Tcl_GetLongFromObj (interp, objv[2], &lon) == TCL_ERROR) {
 	      return TCL_ERROR;
 	  }
@@ -135,16 +168,28 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
       }
 
       case OPT_MAP_OPEN: {
+	  if (objc != 2) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "map_open");
+	    return TCL_ERROR;
+	  }
           status = yajl_gen_map_open (hand);
 	  break;
       }
 
       case OPT_MAP_CLOSE: {
+	  if (objc != 2) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "mapclose");
+	    return TCL_ERROR;
+	  }
           status = yajl_gen_map_close (hand);
 	  break;
       }
 
       case OPT_NULL: {
+	  if (objc != 2) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "null");
+	    return TCL_ERROR;
+	  }
           status = yajl_gen_null (hand);
 	  break;
       }
@@ -153,6 +198,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
           char *number;
 	  int   len;
 
+	  if (objc != 3) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "number value");
+	    return TCL_ERROR;
+	  }
+
           number = Tcl_GetStringFromObj (objv[2], &len);
 	  status = yajl_gen_number (hand, number, len);
       }
@@ -160,6 +210,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
       case OPT_STRING: {
           char *string;
 	  int   len;
+
+	  if (objc != 3) {
+	    Tcl_WrongNumArgs (interp, 1, objv, "string value");
+	    return TCL_ERROR;
+	  }
 
           string = Tcl_GetStringFromObj (objv[2], &len);
 	  status = yajl_gen_string (hand, (unsigned char *)string, len);
@@ -171,30 +226,43 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
     switch (status) {
       case yajl_gen_status_ok: {
+	  break;
       }
 
       case yajl_gen_keys_must_be_strings: {
-          // "map key needed but string not called"
+          errString = "map key needed but string not called";
+	  break;
       }
 
       case yajl_max_depth_exceeded: {
-          // "maximum generation depth exceeded"
+          errString = "maximum generation depth exceeded";
+	  break;
       }
 
       case yajl_gen_in_error_state: {
-          // "generator option called while in error state"
+          errString = "generator option called while in error state";
+	  break;
       }
 
       case yajl_gen_generation_complete: {
+          printf("generation complete\n");
+	  break;
       }
 
       case yajl_gen_invalid_number: {
-          // "invalid floating point value"
+          errString = "invalid floating point value";
+	  break;
       }
 
       case yajl_gen_no_buf: {
-          // "no internal buffer"
+          errString = "no internal buffer";
+	  break;
       }
+    }
+
+    if (errString != NULL) {
+        Tcl_SetObjResult (interp, Tcl_NewStringObj (errString, -1));
+	return TCL_ERROR;
     }
 
     return TCL_OK;
