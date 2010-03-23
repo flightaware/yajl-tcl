@@ -1,4 +1,4 @@
-This is yajltcl, a direct Tcl interface to the yajl JSON generator library
+This is yajl-tcl, a direct Tcl interface to the yajl JSON generator library.
 
 Version 1.0
 
@@ -7,10 +7,11 @@ license, same as Tcl.  You can do virtually anything you like with it, such as
 modifying it, redistributing it, and selling it either in whole or in part.  
 See the file "license.terms" for complete information.
 
-yajltcl was written by Karl Lehenbauer.
+yajl-tcl was written by Karl Lehenbauer of FlightAware.  This company-funded
+work was generously open-sourced.
 
-USING YAJLTCL
-=============
+USING YAJL-TCL
+==============
 
 package require yajltcl
 
@@ -18,9 +19,9 @@ package require yajltcl
 EXAMPLE USE
 ===========
 
-Create a yajltcl object...
+Create a yajl-tcl object...
 
-yajltcl create x
+yajl create x
 
 or
 
@@ -43,8 +44,8 @@ puts [x get]
 
 x reset
 
-YAJLTCL QUICK REF
-=================
+YAJL-TCL QUICK REF
+==================
 
 create the object as above
 
@@ -55,12 +56,12 @@ The methods are:
 
 array_open, array_close, bool, clear, double, integer, map_close, map_open, null, number, string, free, get, or reset
 
-
 array_open - start an array
+
 array_close - end an array
 
 clear - clears the buffer but doesn't reset the parser's state
-not sure how useful this is
+    (not sure how useful this is)
 
 bool - add a boolean, value follows
 
@@ -70,8 +71,10 @@ integer - add an integer value, value follows
 
 number - add a numeric value, value follows
 
-note that double, yajl internally formats that only with %g so if you want
-higher precision, use format coupled with "number".
+Note that with respect to "double" yajl internally formats that only with "%g"
+providing six digits of precision and this is not currently configurable 
+via YAJL.  If you need higher precision, use "format" or equivalent, coupled 
+with yajl-tcl's "number" method.
 
 map_open - open a map
 
@@ -131,7 +134,7 @@ UNIX BUILD
 Building under most UNIX systems is easy, just run the configure script
 and then run make. 
 
-	$ cd tclspline
+	$ cd yajl-tcl
 	$ ./configure
 	$ make
 	$ make install
@@ -139,7 +142,7 @@ and then run make.
 WINDOWS BUILD
 =============
 
-tclspline has not been built under Windows at this time.
+yajl-tcl has not been built under Windows at this time.
 
 The recommended method to build extensions under Windows is to use the
 Msys + Mingw build process. This provides a Unix-style build while
@@ -174,6 +177,5 @@ referenced with by 'load' in the pkgIndex.tcl file.  Dependent DLL files on
 Windows must go in the bin directory (or other directory on the user's
 PATH) in order for them to be found.
 
-It has not been tested with Windows so none of the above may be true.
-
+Yajl-tcl has not been tested with Windows so none of the above may be true.
 
