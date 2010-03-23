@@ -18,5 +18,6 @@ yajltcl_yajlObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 
 typedef struct yajltcl_clientData
 {
+    Tcl_Interp *interp;
     yajl_gen handle;
-};
+} yajltcl_clientData;

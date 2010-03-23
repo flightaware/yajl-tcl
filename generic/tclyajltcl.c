@@ -33,7 +33,7 @@
  */
 
 EXTERN int
-Tclyajl_Init(Tcl_Interp *interp)
+Yajltcl_Init(Tcl_Interp *interp)
 {
     /*
      * This may work with 8.0, but we are using strictly stubs here,
@@ -77,7 +77,7 @@ Tclyajl_Init(Tcl_Interp *interp)
  */
 
 EXTERN int
-Tclyajl_SafeInit(Tcl_Interp *interp)
+Yajltcl_SafeInit(Tcl_Interp *interp)
 {
     /*
      * This may work with 8.0, but we are using strictly stubs here,

@@ -19,7 +19,13 @@
  *
  *--------------------------------------------------------------
  */
+void
+yajltcl_print_callback (void *context, const char *str, unsigned int len)
+{
+    // yajltcl_clientData *yajlData = (yajltcl_clientData *)context;
 
+    printf("print callback '%s'\n", str);
+}
 
 
 /*
@@ -60,7 +66,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
     enum options {
         OPT_ARRAY_OPEN,
-	OPT_ARAY_CLOSE,
+	OPT_ARRAY_CLOSE,
 	OPT_BOOL,
 	OPT_CLEAR,
 	OPT_DOUBLE,
@@ -96,7 +102,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	      return TCL_ERROR;
 	  }
 
-          status = yajl_gen_bool (hand, boolean);
+          status = yajl_gen_bool (hand, bool);
 	  break;
       }
 
@@ -156,7 +162,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  int   len;
 
           string = Tcl_GetStringFromObj (objv[2], &len);
-	  status = yajl_gen_string (hand, string, len);
+	  status = yajl_gen_string (hand, (unsigned char *)string, len);
       }
 
       case OPT_FREE: {
@@ -168,26 +174,26 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
       }
 
       case yajl_gen_keys_must_be_strings: {
-          "map key needed but string not called"
+          // "map key needed but string not called"
       }
 
       case yajl_max_depth_exceeded: {
-          "maximum generation depth exceeded"
+          // "maximum generation depth exceeded"
       }
 
       case yajl_gen_in_error_state: {
-          "generator option called while in error state"
+          // "generator option called while in error state"
       }
 
       case yajl_gen_generation_complete: {
       }
 
       case yajl_gen_invalid_number: {
-          "invalid floating point value"
+          // "invalid floating point value"
       }
 
       case yajl_gen_no_buf: {
-          "no internal buffer"
+          // "no internal buffer"
       }
     }
 
@@ -221,9 +227,16 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     int objc;				/* Number of arguments. */
     Tcl_Obj   *CONST objv[];
 {
-    yajltcl_clientData *clientData = ckalloc (sizeof (yajltcl_clientData));
+    yajl_gen_config yConfig;
 
-    clientData->handle = yajl_gen_alloc2 (yajltcl_print_callback, config, NULL, NULL);
+    yajltcl_clientData *yajlData = (yajltcl_clientData *)ckalloc (sizeof (yajltcl_clientData));
+    yajlData->interp = interp;
+
+    yConfig.beautify = 0;
+    yConfig.indentString = "\t";
+
+    yajlData->handle = yajl_gen_alloc2 (yajltcl_print_callback, &yConfig, NULL, yajlData);
+
 
     if (objc != 3) {
         Tcl_WrongNumArgs (interp, 2, objv, "create name");
@@ -231,7 +244,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     }
 
 
-    Tcl_CreateObjCommand (interp, Tcl_GetString (objv[2]), yajltcl_yajlObjectObjCmd, newIm, yajltcl_yajlDeleteProc);
+    Tcl_CreateObjCommand (interp, Tcl_GetString (objv[2]), yajltcl_yajlObjectObjCmd, yajlData, NULL);
 
     return TCL_OK;
 }
