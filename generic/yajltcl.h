@@ -8,10 +8,15 @@
  * for details.
  */
 
+
+/* NB - fix the configure script */
+#include <yajl/yajl_common.h>
+#include <yajl/yajl_gen.h>
+
 extern int
 yajltcl_yajlObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objvp[]);
 
 typedef struct yajltcl_clientData
 {
     yajl_gen handle;
-}
+};
