@@ -93,8 +93,7 @@ reset - free, reallocate and configure the yajl generator object
 BUGS
 ====
 
-If you delete generated commands using rename, some memory will currently
-be leaked.
+About for sure.  None known at this time.
 
 CONTENTS
 ========
@@ -114,9 +113,9 @@ configure	Generated file.  Do not edit.  This must be regenerated
 configure.in	Configure script template.  Autoconf uses this file as input
 		to produce the final configure script.
 
-generic/tclspline.c	Spline routines.
-generic/tclspline.h	include file
-generic/tclsplinetcl.c	Init routines.
+generic/yajltcl.c	YAJL Tcl interface routines.
+generic/yajltcl.h	include file
+generic/tclyajltcl.c	Init routines.
 
 
 tclconfig/	This directory contains various template files that build

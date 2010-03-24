@@ -10,10 +10,12 @@
 /*
  *--------------------------------------------------------------
  *
- * yajl --
- *
+ * yajltcl_print_callback -- callback routine for when YAJL wants to "print"
+ * something -- we grab it and append it to a Tcl dynamic string in the
+ * yajltcl clientData that we maintain.
  *
  * Results:
+ *      yajlData->dString is appended to.
  *
  * Side effects:
  *	None.
@@ -28,20 +30,83 @@ yajltcl_print_callback (void *context, const char *str, unsigned int len)
     Tcl_DStringAppend (&yajlData->dString, str, len);
 }
 
+
+/*
+ *--------------------------------------------------------------
+ *
+ * yajltcl_free_generator -- free the YAJL generator and associated
+ *  data.
+ *
+ * Results:
+ *      frees the YAJL generator handle if it exists.
+ *      frees the Tcl Dynamic string we use to build up the JSON.
+ *
+ * Side effects:
+ *	None.
+ *
+ *--------------------------------------------------------------
+ */
+void
+yajltcl_free_generator (yajltcl_clientData *yajlData)
+{
+    if (yajlData->handle != NULL) {
+	yajl_gen_free (yajlData->handle);
+    }
+
+    Tcl_DStringFree (&yajlData->dString);
+}
+
+
+/*
+ *--------------------------------------------------------------
+ *
+ * yajltcl_recreate_generator -- create or recreate the YAJL generator 
+ * and associated data.
+ *
+ * Results:
+ *      ...frees the YAJL generator handle if it exists.
+ *      ...frees the Tcl Dynamic string we use to build up the JSON.
+ *      ...creates a new YAJL generator object.
+ *
+ * Side effects:
+ *	None.
+ *
+ *--------------------------------------------------------------
+ */
 void
 yajltcl_recreate_generator (yajltcl_clientData *yajlData)
 {
     yajl_gen_config yConfig;
 
-    if (yajlData->handle != NULL) {
-	yajl_gen_free (yajlData->handle);
-    }
+    yajltcl_free_generator (yajlData);
 
     yConfig.beautify = 0;
     yConfig.indentString = "\t";
-    Tcl_DStringFree (&yajlData->dString);
 
     yajlData->handle = yajl_gen_alloc2 (yajltcl_print_callback, &yConfig, NULL, yajlData);
+}
+
+
+/*
+ *--------------------------------------------------------------
+ *
+ * yajltcl_yajlObjectDelete -- command deletion callback routine.
+ *
+ * Results:
+ *      ...frees the YAJL generator handle if it exists.
+ *      ...frees the Tcl Dynamic string we use to build up the JSON.
+ *
+ * Side effects:
+ *	None.
+ *
+ *--------------------------------------------------------------
+ */
+void
+yajltcl_yajlObjectDelete (ClientData clientData)
+{
+    yajltcl_clientData *yajlData = (yajltcl_clientData *)clientData;
+
+    yajltcl_free_generator (yajlData);
 }
 
 
@@ -292,7 +357,6 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
     return TCL_OK;
 }
 
-
 
 /*
  *----------------------------------------------------------------------
@@ -365,7 +429,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     }
 
 
-    Tcl_CreateObjCommand (interp, commandName, yajltcl_yajlObjectObjCmd, yajlData, NULL);
+    Tcl_CreateObjCommand (interp, commandName, yajltcl_yajlObjectObjCmd, yajlData, yajltcl_yajlObjectDelete);
     Tcl_SetObjResult (interp, Tcl_NewStringObj (commandName, -1));
     return TCL_OK;
 }
