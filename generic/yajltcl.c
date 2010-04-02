@@ -76,14 +76,9 @@ yajltcl_free_generator (yajltcl_clientData *yajlData)
 void
 yajltcl_recreate_generator (yajltcl_clientData *yajlData)
 {
-    yajl_gen_config yConfig;
-
     yajltcl_free_generator (yajlData);
 
-    yConfig.beautify = 0;
-    yConfig.indentString = "\t";
-
-    yajlData->handle = yajl_gen_alloc2 (yajltcl_print_callback, &yConfig, NULL, yajlData);
+    yajlData->handle = yajl_gen_alloc2 (yajltcl_print_callback, &yajlData->yConfig, NULL, yajlData);
 }
 
 
@@ -385,6 +380,8 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
 {
     yajltcl_clientData *yajlData;
     int                 optIndex;
+    int                 suboptIndex;
+    int                 i;
     char               *commandName;
 
     static CONST char *options[] = {
@@ -396,9 +393,19 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
         OPT_CREATE
     };
 
+    static CONST char *subOptions[] = {
+        "-beautify",
+        "-indent",
+	NULL
+    };
 
-    if (objc != 3) {
-        Tcl_WrongNumArgs (interp, 1, objv, "create name");
+    enum suboptions {
+        SUBOPT_BEAUTIFY,
+	SUBOPT_INDENT
+    };
+
+    if (objc < 3 || (objc & 1) == 0) {
+        Tcl_WrongNumArgs (interp, 1, objv, "create name ?-beautify 0|1? ?-indent string?");
 	return TCL_ERROR;
     }
 
@@ -408,9 +415,37 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     }
 
     yajlData = (yajltcl_clientData *)ckalloc (sizeof (yajltcl_clientData));
+
+    yajlData->yConfig.beautify = 0;
+    yajlData->yConfig.indentString = "\t";
+
     yajlData->interp = interp;
     yajlData->handle = NULL;
     Tcl_DStringInit (&yajlData->dString);
+
+    for (i = 3; i < objc; i += 2) {
+        if (Tcl_GetIndexFromObj (interp, objv[i], subOptions, "suboption",
+	    TCL_EXACT, &suboptIndex) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+
+	switch ((enum suboptions)suboptIndex ) {
+	    case SUBOPT_BEAUTIFY: {
+	        int beautify;
+
+	        if (Tcl_GetBooleanFromObj (interp, objv[i+1], &beautify) == TCL_ERROR) {
+		    return TCL_ERROR;
+		}
+		yajlData->yConfig.beautify = beautify;
+	        break;
+	    }
+
+	    case SUBOPT_INDENT: {
+	        yajlData->yConfig.indentString = Tcl_GetString (objv[i+1]);
+	        break;
+	    }
+	}
+    }
 
     yajltcl_recreate_generator (yajlData);
 

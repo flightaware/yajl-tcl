@@ -1,2 +1,8 @@
+2010-04-02 karl
+    * Make yajl-tcl -beautify and -indent options configurable in the Tcl
+      API.  (yajl create #auto -beautify 1 -indent "\t")
+
+    * Version bump to 11
+
 2010-03-23 karl
     * Initial release

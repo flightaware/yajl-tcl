@@ -21,4 +21,5 @@ typedef struct yajltcl_clientData
     Tcl_Interp *interp;
     yajl_gen handle;
     Tcl_DString dString;
+    yajl_gen_config yConfig;
 } yajltcl_clientData;
