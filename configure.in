@@ -70,7 +70,7 @@ TEA_SETUP_COMPILER
 # and PKG_TCL_SOURCES.
 #-----------------------------------------------------------------------
 
-TEA_ADD_SOURCES([yajltcl.c tclyajltcl.c])
+TEA_ADD_SOURCES([yajltcl.c yajlparser.c tclyajltcl.c])
 TEA_ADD_HEADERS([])
 TEA_ADD_INCLUDES([])
 TEA_ADD_LIBS([])
