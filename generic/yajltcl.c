@@ -45,6 +45,24 @@ boolean_callback (void *context, int boolean)
 }
 
 static int
+integer_callback (void *context, long integerVal)
+{
+    Tcl_Interp *interp = (Tcl_Interp *)context;
+
+     append_result_list (interp, "integer", Tcl_NewLongObj(integerVal));
+    return 1;
+}
+
+static int
+double_callback (void *context, double doubleVal)
+{
+    Tcl_Interp *interp = (Tcl_Interp *)context;
+
+     append_result_list (interp, "double", Tcl_NewDoubleObj(doubleVal));
+    return 1;
+}
+
+static int
 number_callback (void *context, const char *s, unsigned int l)
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
@@ -76,7 +94,7 @@ map_start_callback (void *context)
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
-     append_string (interp, "map_start");
+     append_string (interp, "map_open");
     return 1;
 }
 
@@ -85,7 +103,7 @@ map_end_callback (void *context)
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
-     append_string (interp, "map_end");
+     append_string (interp, "map_close");
     return 1;
 }
 
@@ -94,7 +112,7 @@ array_start_callback (void *context)
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
-     append_string (interp, "array_start");
+     append_string (interp, "array_open");
     return 1;
 }
 
@@ -103,15 +121,15 @@ array_end_callback (void *context)
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
-     append_string (interp, "array_end");
+     append_string (interp, "array_close");
     return 1;
 }
 
 static yajl_callbacks callbacks = {
     null_callback,
     boolean_callback,
-    NULL,
-    NULL,
+    integer_callback,
+    double_callback,
     number_callback,
     string_callback,
     map_start_callback,
@@ -120,6 +138,53 @@ static yajl_callbacks callbacks = {
     array_start_callback,
     array_end_callback
 };
+
+
+/*
+ *--------------------------------------------------------------
+ *
+ * yajltcl_free_parser -- free the YAJL parser and associated
+ *  data.
+ *
+ * Results:
+ *      frees the YAJL parser handle if it exists.
+ *
+ * Side effects:
+ *	None.
+ *
+ *--------------------------------------------------------------
+ */
+void
+yajltcl_free_parser (yajltcl_clientData *yajlData)
+{
+    if (yajlData->parseHandle != NULL) {
+	yajl_free (yajlData->parseHandle);
+    }
+}
+
+
+/*
+ *--------------------------------------------------------------
+ *
+ * yajltcl_recreate_parser -- create or recreate the YAJL parser 
+ * and associated data.
+ *
+ * Results:
+ *      ...frees the YAJL parser handle if it exists.
+ *      ...creates a new YAJL parser object.
+ *
+ * Side effects:
+ *	None.
+ *
+ *--------------------------------------------------------------
+ */
+void
+yajltcl_recreate_parser (yajltcl_clientData *yajlData)
+{
+    yajltcl_free_parser (yajlData);
+
+    yajlData->parseHandle = yajl_alloc (&callbacks, &yajlData->parseConfig, NULL, yajlData->interp);
+}
 
 
 /* GENERATOR STUFF */
@@ -258,10 +323,12 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	"null",
 	"number",
 	"string",
+	"map_key",
 	"free",
 	"get",
 	"reset",
 	"parse",
+	"parse_complete",
 	NULL
     };
 
@@ -277,10 +344,12 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	OPT_NULL,
 	OPT_NUMBER,
 	OPT_STRING,
+	OPT_MAP_KEY,
 	OPT_FREE,
 	OPT_GET,
 	OPT_RESET,
-	OPT_PARSE
+	OPT_PARSE,
+	OPT_PARSE_COMPLETE
     };
 
     if (objc < 2) {
@@ -329,6 +398,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
 	  case OPT_RESET: {
 	      yajltcl_recreate_generator (yajlData);
+	      yajltcl_recreate_parser (yajlData);
 	      return TCL_OK;
 	  }
 
@@ -401,6 +471,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	      break;
 	  }
 
+	  case OPT_MAP_KEY:
 	  case OPT_STRING: {
 	      char *string;
 	      int   len;
@@ -433,6 +504,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 		  Tcl_SetObjResult (interp, Tcl_NewStringObj ((char *)str, -1));
 		  return TCL_ERROR;
 	      }
+	      break;
+	  }
+
+	  case OPT_PARSE_COMPLETE: {
+	      yajl_parse_complete (yajlData->parseHandle);
 	      break;
 	  }
 
@@ -618,9 +694,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     }
 
     yajltcl_recreate_generator (yajlData);
-
-    // create the parser
-    yajlData->parseHandle = yajl_alloc (&callbacks, &yajlData->parseConfig, NULL, interp);
+    yajltcl_recreate_parser (yajlData);
 
     commandName = Tcl_GetString (objv[2]);
 

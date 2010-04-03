@@ -89,6 +89,14 @@ state so you can keep going, i.e. stream it.
 
 reset - free, reallocate and configure the yajl generator object
 
+PARSING
+=======
+
+As of version 1.2, yajl-tcl can also parse...
+
+set list [$object parse $json]
+
+List will be as above.
 
 BUGS
 ====
