@@ -6,6 +6,125 @@
 #include "yajltcl.h"
 #include <string.h>
 
+
+/* PARSER STUFF */
+
+static int
+append_result_list (Tcl_Interp *interp, char *type, Tcl_Obj *object) 
+{
+    Tcl_Obj *resultObj = Tcl_GetObjResult (interp);
+    Tcl_ListObjAppendElement (interp, resultObj, Tcl_NewStringObj (type, -1));
+    Tcl_ListObjAppendElement (interp, resultObj, object);
+
+    return 1;
+}
+
+static int
+append_string (Tcl_Interp *interp, char *string)
+{
+     Tcl_ListObjAppendElement (interp, Tcl_GetObjResult (interp), Tcl_NewStringObj (string, -1));
+    return 1;
+}
+
+static int
+null_callback (void *context)
+{
+    Tcl_Interp *interp = (Tcl_Interp *)context;
+
+    append_string (interp, "null");
+    return 1;
+}
+
+static int
+boolean_callback (void *context, int boolean)
+{
+    Tcl_Interp *interp = (Tcl_Interp *)context;
+
+     append_result_list (interp, "boolean", Tcl_NewBooleanObj(boolean));
+    return 1;
+}
+
+static int
+number_callback (void *context, const char *s, unsigned int l)
+{
+    Tcl_Interp *interp = (Tcl_Interp *)context;
+
+     append_result_list (interp, "number", Tcl_NewStringObj(s, l));
+    return 1;
+}
+
+static int
+string_callback (void *context, const unsigned char *stringVal, unsigned int stringLen)
+{
+    Tcl_Interp *interp = (Tcl_Interp *)context;
+
+     append_result_list (interp, "string", Tcl_NewStringObj((char *)stringVal, stringLen));
+    return 1;
+}
+
+static int
+map_key_callback (void *context, const unsigned char *stringVal, unsigned int stringLen)
+{
+    Tcl_Interp *interp = (Tcl_Interp *)context;
+
+     append_result_list (interp, "map_key", Tcl_NewStringObj((char *)stringVal, stringLen));
+    return 1;
+}
+
+static int
+map_start_callback (void *context)
+{
+    Tcl_Interp *interp = (Tcl_Interp *)context;
+
+     append_string (interp, "map_start");
+    return 1;
+}
+
+static int
+map_end_callback (void *context)
+{
+    Tcl_Interp *interp = (Tcl_Interp *)context;
+
+     append_string (interp, "map_end");
+    return 1;
+}
+
+static int
+array_start_callback (void *context)
+{
+    Tcl_Interp *interp = (Tcl_Interp *)context;
+
+     append_string (interp, "array_start");
+    return 1;
+}
+
+static int
+array_end_callback (void *context)
+{
+    Tcl_Interp *interp = (Tcl_Interp *)context;
+
+     append_string (interp, "array_end");
+    return 1;
+}
+
+static yajl_callbacks callbacks = {
+    null_callback,
+    boolean_callback,
+    NULL,
+    NULL,
+    number_callback,
+    string_callback,
+    map_start_callback,
+    map_key_callback,
+    map_end_callback,
+    array_start_callback,
+    array_end_callback
+};
+
+
+/* GENERATOR STUFF */
+
+
 
 /*
  *--------------------------------------------------------------
@@ -49,8 +168,8 @@ yajltcl_print_callback (void *context, const char *str, unsigned int len)
 void
 yajltcl_free_generator (yajltcl_clientData *yajlData)
 {
-    if (yajlData->handle != NULL) {
-	yajl_gen_free (yajlData->handle);
+    if (yajlData->genHandle != NULL) {
+	yajl_gen_free (yajlData->genHandle);
     }
 
     Tcl_DStringFree (&yajlData->dString);
@@ -78,7 +197,7 @@ yajltcl_recreate_generator (yajltcl_clientData *yajlData)
 {
     yajltcl_free_generator (yajlData);
 
-    yajlData->handle = yajl_gen_alloc2 (yajltcl_print_callback, &yajlData->yConfig, NULL, yajlData);
+    yajlData->genHandle = yajl_gen_alloc2 (yajltcl_print_callback, &yajlData->genConfig, NULL, yajlData);
 }
 
 
@@ -123,7 +242,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
     int         optIndex;
     int         arg;
     yajltcl_clientData *yajlData = (yajltcl_clientData *)cData;
-    yajl_gen hand = yajlData->handle;
+    yajl_gen hand = yajlData->genHandle;
     yajl_gen_status status = yajl_gen_status_ok;
     char *errString = NULL;
 
@@ -142,6 +261,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	"free",
 	"get",
 	"reset",
+	"parse",
 	NULL
     };
 
@@ -159,7 +279,8 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	OPT_STRING,
 	OPT_FREE,
 	OPT_GET,
-	OPT_RESET
+	OPT_RESET,
+	OPT_PARSE
     };
 
     if (objc < 2) {
@@ -294,6 +415,27 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	      break;
 	  }
 
+	  case OPT_PARSE: {
+	      char *string;
+	      int   len;
+
+	      if (arg + 1 >= objc) {
+		Tcl_WrongNumArgs (interp, 1, objv, "parse jsonText");
+		return TCL_ERROR;
+	      }
+
+	      string = Tcl_GetStringFromObj (objv[++arg], &len);
+	      status = yajl_parse (yajlData->parseHandle, (unsigned char *)string, len);
+
+	      if (status != yajl_status_ok && status != yajl_status_insufficient_data) {
+	          unsigned char *str = yajl_get_error (yajlData->parseHandle, 1, (unsigned char *)string, len);
+		  Tcl_ResetResult (interp);
+		  Tcl_SetObjResult (interp, Tcl_NewStringObj ((char *)str, -1));
+		  return TCL_ERROR;
+	      }
+	      break;
+	  }
+
 	  case OPT_FREE: {
 	  }
 
@@ -396,12 +538,16 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     static CONST char *subOptions[] = {
         "-beautify",
         "-indent",
+	"-allowComments",
+	"-checkUTF8",
 	NULL
     };
 
     enum suboptions {
         SUBOPT_BEAUTIFY,
-	SUBOPT_INDENT
+	SUBOPT_INDENT,
+	SUBOPT_ALLOWCOMMENTS,
+	SUBOPT_CHECKUTF8
     };
 
     if (objc < 3 || (objc & 1) == 0) {
@@ -416,11 +562,15 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
 
     yajlData = (yajltcl_clientData *)ckalloc (sizeof (yajltcl_clientData));
 
-    yajlData->yConfig.beautify = 0;
-    yajlData->yConfig.indentString = "\t";
+    yajlData->genConfig.beautify = 0;
+    yajlData->genConfig.indentString = "\t";
+
+    yajlData->parseConfig.checkUTF8 = 0;
+    yajlData->parseConfig.allowComments = 0;
 
     yajlData->interp = interp;
-    yajlData->handle = NULL;
+    yajlData->genHandle = NULL;
+    yajlData->parseHandle = NULL;
     Tcl_DStringInit (&yajlData->dString);
 
     for (i = 3; i < objc; i += 2) {
@@ -436,18 +586,41 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
 	        if (Tcl_GetBooleanFromObj (interp, objv[i+1], &beautify) == TCL_ERROR) {
 		    return TCL_ERROR;
 		}
-		yajlData->yConfig.beautify = beautify;
+		yajlData->genConfig.beautify = beautify;
 	        break;
 	    }
 
 	    case SUBOPT_INDENT: {
-	        yajlData->yConfig.indentString = Tcl_GetString (objv[i+1]);
+	        yajlData->genConfig.indentString = Tcl_GetString (objv[i+1]);
+	        break;
+	    }
+
+	    case SUBOPT_ALLOWCOMMENTS: {
+	        int allowComments;
+
+	        if (Tcl_GetBooleanFromObj (interp, objv[i+1], &allowComments) == TCL_ERROR) {
+		    return TCL_ERROR;
+		}
+	        yajlData->parseConfig.allowComments = allowComments;
+	        break;
+	    }
+
+	    case SUBOPT_CHECKUTF8: {
+	        int checkUTF8;
+
+	        if (Tcl_GetBooleanFromObj (interp, objv[i+1], &checkUTF8) == TCL_ERROR) {
+		    return TCL_ERROR;
+		}
+	        yajlData->parseConfig.checkUTF8 = checkUTF8;
 	        break;
 	    }
 	}
     }
 
     yajltcl_recreate_generator (yajlData);
+
+    // create the parser
+    yajlData->parseHandle = yajl_alloc (&callbacks, &yajlData->parseConfig, NULL, interp);
 
     commandName = Tcl_GetString (objv[2]);
 

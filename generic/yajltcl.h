@@ -12,6 +12,7 @@
 /* NB - fix the configure script */
 #include <yajl/yajl_common.h>
 #include <yajl/yajl_gen.h>
+#include <yajl/yajl_parse.h>
 
 extern int
 yajltcl_yajlObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objvp[]);
@@ -19,7 +20,10 @@ yajltcl_yajlObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 typedef struct yajltcl_clientData
 {
     Tcl_Interp *interp;
-    yajl_gen handle;
+    yajl_gen genHandle;
     Tcl_DString dString;
-    yajl_gen_config yConfig;
+    yajl_gen_config genConfig;
+    yajl_handle parseHandle;
+    yajl_parser_config parseConfig;
 } yajltcl_clientData;
+
