@@ -1,3 +1,7 @@
+
+2010-04-03 karl
+    * Add support for parsing.  Supports -checkUTF8 and -allowComments options.
+
 2010-04-02 karl
     * Make yajl-tcl -beautify and -indent options configurable in the Tcl
       API.  (yajl create #auto -beautify 1 -indent "\t")
