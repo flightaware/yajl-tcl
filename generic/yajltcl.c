@@ -700,7 +700,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
 
     // if commandName is #auto, generate a name
     if (strcmp (commandName, "#auto") == 0) {
-        unsigned long nextAutoCounter = 0;
+        static unsigned long nextAutoCounter = 0;
 	char *objName;
 	int    baseNameLength;
 

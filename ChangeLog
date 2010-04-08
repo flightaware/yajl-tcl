@@ -1,3 +1,7 @@
+2010-04-08 karl
+    * Make the int that's the source of the unique ID for objects created with
+      #auto static so that objects created with #auto will actually have
+      unique IDs.
 
 2010-04-03 karl
     * Add support for parsing.  Supports -checkUTF8 and -allowComments options.
