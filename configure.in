@@ -3,7 +3,7 @@ dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Tcl installation
 dnl	to configure the system for the local environment.
 #
-# RCS: @(#) $Id: configure.in,v 1.3 2007-03-11 22:43:12 karl Exp $
+# RCS: @(#) $Id: configure.in,v 1.50 2010/08/12 01:19:36 hobbs Exp $
 
 #-----------------------------------------------------------------------
 # configure.in for Karl's yajltcl
@@ -26,7 +26,7 @@ AC_INIT([yajltcl], [1.2])
 # as well as PKG_LIB_FILE and PKG_STUB_LIB_FILE.
 #--------------------------------------------------------------------
 
-TEA_INIT([3.7])
+TEA_INIT([3.8])
 
 AC_CONFIG_AUX_DIR(tclconfig)
 
