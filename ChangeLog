@@ -1,3 +1,6 @@
+2010-08-12 karl
+    * Upgrade to Tcl Extension Architecture (TEA) 3.8.
+
 2010-04-08 karl
     * Make the int that's the source of the unique ID for objects created with
       #auto static so that objects created with #auto will actually have
