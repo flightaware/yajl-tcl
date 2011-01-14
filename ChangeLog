@@ -1,7 +1,6 @@
 2011-01-13 karl
-    * Add convenience functions into the new ::yajl namespace, array_to_json,
-      pgresult_tuples_to_json, and pg_select_to_json
-
+    * Add convenience functions into the new ::yajl namespace: array_to_json,
+        add_array_to_json, pgresult_tuples_to_json, and pg_select_to_json
 
 2010-08-12 karl
     * Upgrade to Tcl Extension Architecture (TEA) 3.8.
