@@ -2,4 +2,4 @@
 # Tcl package index file for yajltcl @PACKAGE_VERSION@
 #
 package ifneeded yajltcl @PACKAGE_VERSION@ \
-    [list load [file join $dir @PKG_LIB_FILE@]]
+    [list load [file join $dir @PKG_LIB_FILE@]]\n[list source [file join $dir yajl.tcl]]
