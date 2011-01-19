@@ -21,7 +21,7 @@ EXAMPLE USE
 
 Create a yajl-tcl object...
 
-yajl create x
+yajl create x -beautify 1
 
 or
 
@@ -42,7 +42,46 @@ x array_close map_close
 
 puts [x get]
 
-x reset
+produces...
+
+{
+	"type": "FeatureCollection",
+	"features": [
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-106.6091944,
+					35.0401944
+				]
+			},
+			"properties": {
+				"label": "KABQ"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-118.3586667,
+					34.206667
+				]
+			},
+			"properties": {
+				"label": "KBUR"
+			}
+		}
+	]
+}
+
+x reset - prepare the object for reuse
+
+or
+
+rename x "" - delete the object and all of its internal data
+
 
 YAJL-TCL QUICK REF
 ==================
