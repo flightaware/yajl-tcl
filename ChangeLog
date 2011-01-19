@@ -1,5 +1,5 @@
-2011-01-18 karl
-    * Tag 1.0 for release.
+2011-01-19 karl
+    * Tag 1.2 for release.
 
 2011-01-13 karl
     * Add convenience functions into the new ::yajl namespace: array_to_json,
