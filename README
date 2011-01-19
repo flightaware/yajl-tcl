@@ -137,6 +137,30 @@ set list [$object parse $json]
 
 List will be as above.
 
+YAJL LIBRARY ROUTINES
+=====================
+
+add_array_to_json jsonObject arrayName - append a Tcl array into the specified
+   json object by doing a JSON map open and then storing the array as key-value
+   pairs and then doing a map close.
+
+example usage:
+
+    set json [yajl create #auto]
+    add_array_to_json $json array
+    puts [$json get]
+    rename $json ""
+
+array_to_json arrayName - return the contents of the array as JSON text
+
+add_pgresult_tuples_to_json - append a JSON array of JSON objects of a
+     Postgres result, one array entry per tuple in the result, with
+     the non-null values set in each row object.
+
+pg_select_to_json - given a postgres connection handle and a sql select
+statement, perform the select and return the results of the select as
+JSON text.
+
 BUGS
 ====
 
