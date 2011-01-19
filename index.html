@@ -1,86 +1,321 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-	<title>lehenbauer/yajl-tcl @ GitHub</title>
-	
-	<style type="text/css">
-		body {
-  		margin-top: 1.0em;
-  		background-color: #0d91cc;
-		  font-family: "Helvetica,Arial,FreeSans";
-  		color: #ffffff;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-		h1 { font-size: 3.8em; color: #f26e33; margin-bottom: 3px; }
-		h1 .small { font-size: 0.4em; }
-		h1 a { text-decoration: none }
-		h2 { font-size: 1.5em; color: #f26e33; }
-    h3 { text-align: center; color: #f26e33; }
-    a { color: #f26e33; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-		pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-	</style>
-	
+    <title>yajl-tcl</title>
+    
+    <style type="text/css">
+      body {
+        background-color: #D5D6D7;
+        padding:20px;
+        text-align: center;
+        align: center;
+      }
+      .header {
+        border-bottom: 1px solid #959596;
+        padding: 5px;
+        color: #ffffff;
+        background-color: rgb(115, 160, 197);
+      }
+      .header a {
+        text-decoration: none;
+        color: #ffffff;
+      }
+      .pageTitle {
+        font-size: 3em;
+        font-weight: normal;
+      }
+      .small { font-size: 1em; }
+
+      #outerContainer {
+        border:1px solid #959596;
+        font-family: "helvetica"; 
+        color: #000000;
+        margin: 0 auto;
+        background-color: #ffffff;
+      }
+      #container {
+        margin-left: auto;
+        margin-right: auto;
+        text-align: left;
+        width: 700px;
+        color: #333333;
+      }
+      h1 { font-size: 3.8em; color: #736f30; margin-bottom: 3px; }
+      h1 .small { font-size: 0.4em; }
+      h1 a { text-decoration: none }
+      h2 { font-size: 1.5em; text-align: center;}
+      h3 { font-size: 1.2em; color: #111144}
+      .description {
+        font-size: 1.2em;
+        margin-bottom: 30px;
+        margin-top: 30px;
+        font-style: italic;
+      }
+      .download { float: right; }
+      pre { background: #f4f4f4; color: #000080; padding: 15px;}
+      hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+      .footer { text-align:center; padding-top:30px; font-style: italic; }
+      .styleCredit { font-size: 75%; }
+    </style>
+    
 </head>
 
 <body>
   <a href="http://github.com/lehenbauer/yajl-tcl"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-
+  
+  <div id="outerContainer">
+  <div class="header">
+    <span class="pageTitle">
+      <a href="http://github.com/lehenbauer/yajl-tcl">yajl-tcl</a>
+    </span><br>
+    <span class="small">
+      by <a href="http://github.com/lehenbauer">lehenbauer</a> and <a href="http://flightaware.com/">flightaware</a>
+    </span>
+  </div>
   <div id="container">
-
-    <div class="download">
-      <a href="http://github.com/lehenbauer/yajl-tcl/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/lehenbauer/yajl-tcl/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
-
-    <h1><a href="http://github.com/lehenbauer/yajl-tcl">yajl-tcl</a>
-      <span class="small">by <a href="http://github.com/lehenbauer">lehenbauer</a></span></h1>
-
     <div class="description">
       Tcl bindings for Yet Another JSON Library
     </div>
 
-    <p>Tcl bindings for generating JSON using YAJL - Yet Another Javascript Library.  Very fast execution, way way way faster than using huddle in the Tcl library.</p><h2>Dependencies</h2>
-<p>Tcl 8.4+</p>
-<h2>Install</h2>
-<p>configure; make; make install</p>
-<h2>License</h2>
-<p>Berekeley</p>
-<h2>Authors</h2>
-<p>Karl Lehenbauer (karl@flightaware.com)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>Karl Lehenbauer (karl-gh@flightaware.com)<br/>      </p>
+    <h2>Overview</h2>
 
-
+	  <p>
+	  This is yajl-tcl, a Tcl C extension written to make the Yet Another
+	  JSON Library (YAJL), a C library for parsing and generating JSON,
+	  available to Tcl coders.  JSON stands for Javascript Object Notation,
+	  a popular data exchange format for Javascript.
+	  </p>
+	  <p>
+	  Although there is already a package in the tcllib library, huddle, that
+	  can generate JSON, the big advantage in using yajl-tcl is performance.
+	  Also, yajl-tcl can parse JSON as well as generating it.
+	  </p>
+	  <p>
+	  In a benchmark generating JSON representing 5,000 airports with code,
+	  name, latitude and longitude, yajl-tcl was 157 times faster than huddle.
+	  </p>
+    <h2>Code</h2>
+    <p>
+      Get it on github: <a href="http://github.com/lehenbauer/yajl-tcl">http://github.com/lehenbauer/yajl-tcl</a>
+    </p>
+    <h2>Support</h2>
+    <p>
+        You can sometimes find yajl-tcl on IRC in the <code>#tcl</code> channel on the <a href="http://freenode.net">Freenode</a> network 
+        or you can file issues with github <a href="https://github.com/lehenbauer/yajl-tcl/issues">here</a>.
+    </p>
     <h2>Download</h2>
     <p>
-      You can download this project in either
-      <a href="http://github.com/lehenbauer/yajl-tcl/zipball/master">zip</a> or
-      <a href="http://github.com/lehenbauer/yajl-tcl/tarball/master">tar</a> formats.
+      <ul>
+	  <li><a href="https://github.com/lehenbauer/yajl-tcl/tarball/master">Latest Source as a tarball</a>
+	  <li><a href="https://github.com/lehenbauer/yajl-tcl/zipball/master">Latest Source as a tarball</a>
+	  <li><a href="https://github.com/downloads/lehenbauer/yajl-tcl/yajl-tcl-1.2.tar.gz">yajl-tcl-1.2.tar.gz</a>
+       </ul>
     </p>
     <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
       by running:
       <pre>$ git clone git://github.com/lehenbauer/yajl-tcl</pre>
     </p>
+    <h2>Using yajl-tcl</h2>
+	<pre>
+package require yajltcl
+    </pre>
+	Create a yajl-tcl object...
+	<pre>
+yajl create x -beautify 1
+    </pre>
+	or
+	<pre>
+set x [yajl create #auto]
+    </pre>
+	...then generate some json...
+	<pre>
+x map_open string type string FeatureCollection string features array_open
+
+proc json_major_airport {obj icao lat lon} {
+    $obj map_open string type string Feature string geometry \
+	         map_open string type string Point string coordinates \
+		         array_open number $lon number $lat \
+				 array_close \
+			 map_close string properties \
+			 map_open string label string $icao map_close map_close
+}
+
+json_major_airport x KABQ 35.0401944 -106.6091944
+json_major_airport x KBUR 34.206667 -118.3586667 
+
+x array_close map_close
+
+puts [x get]
+    </pre>
+    ...yielding...
+    <pre>
+{
+	"type": "FeatureCollection",
+	"features": [
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-106.6091944,
+					35.0401944
+				]
+			},
+			"properties": {
+				"label": "KABQ"
+			}
+		},
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [
+					-118.3586667,
+					34.206667
+				]
+			},
+			"properties": {
+				"label": "KBUR"
+			}
+		}
+	]
+}
+	</pre>
+    <h2>Quick Reference</h2>
+	<h3>Generating</h3>
+    <p>
+	Create your yajl-tcl object as above then invoke the object 
+	with one or more methods.  They are generated left to
+	right.  Some have no arguments and some have one.
+	</p>
+	<p>
+	The methods are: <i>array_open, array_close, bool, clear, double, integer, map_close, map_open, null, number, string, free, get,</i> and <i>reset</i>
+	<p>
+	<ul>
+	<li> <i>array_open</i> - start an array
+	<li> <i>array_close</i> - end an array
+	<li> <i>clear</i> - clears the buffer but doesn't reset the parser's state
+    (not sure how useful this is)
+	<li> <i>bool</i> - add a boolean, value follows
+	<li> <i>double</i> - add a double precision floating point value, value follows
+	<li> <i>integer</i> - add an integer value, value follows
+	<li> <i>number</i> - add a numeric value, value follows
+	<p>
+	Note that with respect to "double" yajl internally formats that only 
+	with "%g", providing six digits of precision, and this is not currently 
+	configurable via YAJL.  If you need higher precision, use "format" or 
+	equivalent, coupled with yajl-tcl's "number" method.
+	</p>
+	<li> <i>map_open</i> - open a map
+	<li> <i>map_close</i> - close a map
+	<li> <i>null</i> - insert a null value
+	<li> <i>free</i> - nothing yet
+	<li> <i>get</i> - get the JSON generated so far.  clears the generator buffer.  maintains state so you can keep going, i.e. stream it.
+	<li> <i>reset</i> - free, reallocate and configure the yajl generator object
+	</ul>
+	<h3>Parsing</h3>
+As of version 1.2, yajl-tcl can also parse...
+<pre>
+set list [$object parse $json]
+</pre>
+
+List will be as above.
+<h2>yajl-tcl library routines</h2>
+<ul>
+<li> <b>add_array_to_json</b> <i>jsonObject arrayName</i> - append a Tcl 
+array into the specified json object by doing a JSON map open and then 
+storing the array as key-value pairs and then doing a map close.
+<br />
+example usage:
+<pre>
+    set json [yajl create #auto]
+    add_array_to_json $json array
+    puts [$json get]
+    rename $json ""
+</pre>
+<li><b>array_to_json</b> <i>arrayName</i> - return the contents of the array as JSON text
+
+<li><b>add_pgresult_tuples_to_json</b> <i>jsonObject res</i> - 
+	append a JSON array of JSON objects of a
+    Postgres result, one array entry per tuple in the result, with
+    the non-null values set in each row object.
+
+<li><b>pg_select_to_json</b> <i>conn sql</i> - given a postgres 
+connection handle and a sql select
+statement, perform the select and return the results of the select as
+JSON text.
+</ul>
+    <h2>License</h2>
+
+    <pre>
+This software is copyrighted by Karl Lehenbauer, and includes modified
+sample extension code copyright Scriptics corporation, and other
+parties.  The following terms apply to all files associated with the
+software unless explicitly disclaimed in individual files.
+
+$Id: license.terms,v 1.2 2005-11-21 11:38:11 karl Exp $
+
+The author hereby grants permission to use, copy, modify, distribute,
+and license this software and its documentation for any purpose, provided
+that existing copyright notices are retained in all copies and that this
+notice is included verbatim in any distributions. No written agreement,
+license, or royalty fee is required for any of the authorized uses.
+Modifications to this software may be copyrighted by their authors
+and need not follow the licensing terms described here, provided that
+the new terms are clearly indicated on the first page of each file where
+they apply.
+
+IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY
+FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+ARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY
+DERIVATIVES THEREOF, EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE
+IS PROVIDED ON AN "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE
+NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
+MODIFICATIONS.
+
+GOVERNMENT USE: If you are acquiring this software on behalf of the
+U.S. government, the Government shall have only "Restricted Rights"
+in the software and related documentation as defined in the Federal
+Acquisition Regulations (FARs) in Clause 52.227.19 (c) (2).  If you
+are acquiring the software on behalf of the Department of Defense, the
+software shall be classified as "Commercial Computer Software" and the
+Government shall have only "Restricted Rights" as defined in Clause
+252.227-7013 (c) (1) of DFARs.  Notwithstanding the foregoing, the
+authors grant the U.S. Government and others acting in its behalf
+permission to use and distribute the software in accordance with the
+terms specified in this license.
+~                                         
+</pre>
 
     <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/lehenbauer/yajl-tcl">lehenbauer/yajl-tcl</a>
+      get the source code on GitHub : <a href="http://github.com/lehenbauer/yajl">lehenbauer/yajl</a>
+    </div>
+    
+    <div class="styleCredit footer">
+      (page style "borrowed" from
+       <a href="http://lloyd.github.com/yajl/">Lloyd Hilaiel</a>) borrowed from
+       <a href="http://kylecordes.com">Kyle Cordes</a>)
+    </div>
+    
+  </div></div>
+</body>
+
+<link type="text/css" rel="stylesheet" href="dp.SyntaxHighlighter/SyntaxHighlighter.css"></link>
+<script language="javascript" src="dp.SyntaxHighlighter/shCore.js"></script>
+<script language="javascript" src="dp.SyntaxHighlighter/shBrushCpp.js"></script>
+<script language="javascript">
+dp.SyntaxHighlighter.HighlightAll('code');
+</script>
+</html>
+    <div class="description">
     </div>
 
-  </div>
-
-  
-</body>
-</html>
