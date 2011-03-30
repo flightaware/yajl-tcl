@@ -25,7 +25,7 @@ yajl create x -beautify 1
 
 or
 
-set x [yajltcl create #auto]
+set x [yajl create #auto]
 
 then generate some json
 
