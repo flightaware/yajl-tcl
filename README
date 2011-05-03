@@ -80,7 +80,7 @@ x reset - prepare the object for reuse
 
 or
 
-rename x "" - delete the object and all of its internal data
+x delete - delete the object and all of its internal data
 
 
 YAJL-TCL QUICK REF
@@ -93,7 +93,7 @@ right.  Some have no arguments and some have one.
 
 The methods are:
 
-array_open, array_close, bool, clear, double, integer, map_close, map_open, null, number, string, free, get, or reset
+array_open, array_close, bool, clear, double, integer, map_close, map_open, null, number, string, free, get, reset, or delete
 
 array_open - start an array
 
@@ -126,7 +126,9 @@ free - nothing yet
 get - get the JSON generated so far.  clears the generator buffer.  maintains
 state so you can keep going, i.e. stream it.
 
-reset - free, reallocate and configure the yajl generator object
+reset - free, reallocate and configure the yajl generator object for reuse
+
+delete - delete the object and all of its internal data
 
 PARSING
 =======

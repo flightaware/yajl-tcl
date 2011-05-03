@@ -25,5 +25,6 @@ typedef struct yajltcl_clientData
     yajl_gen_config genConfig;
     yajl_handle parseHandle;
     yajl_parser_config parseConfig;
+    Tcl_Command cmdToken;
 } yajltcl_clientData;
 

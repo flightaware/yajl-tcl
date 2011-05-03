@@ -327,6 +327,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	"free",
 	"get",
 	"reset",
+	"delete",
 	"parse",
 	"parse_complete",
 	NULL
@@ -348,6 +349,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	OPT_FREE,
 	OPT_GET,
 	OPT_RESET,
+	OPT_DELETE,
 	OPT_PARSE,
 	OPT_PARSE_COMPLETE
     };
@@ -399,6 +401,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  case OPT_RESET: {
 	      yajltcl_recreate_generator (yajlData);
 	      yajltcl_recreate_parser (yajlData);
+	      return TCL_OK;
+	  }
+
+	  case OPT_DELETE: {
+	      Tcl_DeleteCommandFromToken(interp, yajlData->cmdToken);
 	      return TCL_OK;
 	  }
 
@@ -711,7 +718,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     }
 
 
-    Tcl_CreateObjCommand (interp, commandName, yajltcl_yajlObjectObjCmd, yajlData, yajltcl_yajlObjectDelete);
+    yajlData->cmdToken = Tcl_CreateObjCommand (interp, commandName, yajltcl_yajlObjectObjCmd, yajlData, yajltcl_yajlObjectDelete);
     Tcl_SetObjResult (interp, Tcl_NewStringObj (commandName, -1));
     return TCL_OK;
 }
