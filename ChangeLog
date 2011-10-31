@@ -1,3 +1,6 @@
+2011-10-31 bovine
+    * Add json parsing into simple key/value dict compatible format (Issue 3)
+
 2011-05-02 bovine
     * Add "delete" convenience function.
 

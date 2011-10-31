@@ -139,6 +139,33 @@ set list [$object parse $json]
 
 List will be as above.
 
+Alternatively, you can use ::yajl::json2dict to JSON into a key-value
+list that be loaded into an array.  As an example, the JSON from prior
+section can be parsed using code similar to the following:
+
+set jsonkv [::yajl::json2dict $json]
+puts "raw = $jsonkv"
+array set myArray $jsonkv
+puts "outerType = $myArray(type)"
+foreach featurekv $myArray(features) {
+    unset -nocomplain featureAry
+    array set featureAry $featurekv
+    puts "innerType = $featureAry(type), geom = $featureAry(geometry)"
+}
+
+That will output the following:
+
+raw = type FeatureCollection features {{type Feature geometry 
+  {type Point coordinates {-106.6091944 35.0401944}} properties {label KABQ}}
+  {type Feature geometry {type Point coordinates {-118.3586667
+  34.206667}} properties {label KBUR}}}
+outerType = FeatureCollection
+innerType = Feature, geom = type Point coordinates {-106.6091944 35.0401944}
+innerType = Feature, geom = type Point coordinates {-118.3586667 34.206667}
+
+
+
+
 YAJL LIBRARY ROUTINES
 =====================
 
