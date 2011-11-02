@@ -469,11 +469,15 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               int   len;
 
               if (arg + 1 >= objc) {
-                Tcl_WrongNumArgs (interp, 1, objv, "number value");
-                return TCL_ERROR;
+                  Tcl_WrongNumArgs (interp, 1, objv, "number value");
+                  return TCL_ERROR;
               }
 
               number = Tcl_GetStringFromObj (objv[++arg], &len);
+              if (len == 0) {
+                  Tcl_AppendResult(interp, "invalid value \"", number, "\" for number", NULL);
+                  return TCL_ERROR;
+              }
               status = yajl_gen_number (hand, number, len);
               break;
           }

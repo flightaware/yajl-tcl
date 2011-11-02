@@ -1,3 +1,6 @@
+2011-11-01 bovine
+    * Make "number" command reject blank arguments as invalid (Issue 4)
+
 2011-10-31 bovine
     * Add json parsing into simple key/value dict compatible format (Issue 3)
 
