@@ -45,7 +45,11 @@ boolean_callback (void *context, int boolean)
 }
 
 static int
+#if (YAJL_MAJOR >= 2)
 integer_callback (void *context, long integerVal)
+#else
+integer_callback (void *context, long long integerVal)
+#endif
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
@@ -63,7 +67,11 @@ double_callback (void *context, double doubleVal)
 }
 
 static int
+#if (YAJL_MAJOR >= 2)
+number_callback (void *context, const char *s, size_t l)
+#else
 number_callback (void *context, const char *s, unsigned int l)
+#endif
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
@@ -72,7 +80,11 @@ number_callback (void *context, const char *s, unsigned int l)
 }
 
 static int
+#if (YAJL_MAJOR >= 2)
+string_callback (void *context, const unsigned char *stringVal, size_t stringLen)
+#else
 string_callback (void *context, const unsigned char *stringVal, unsigned int stringLen)
+#endif
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
@@ -81,7 +93,11 @@ string_callback (void *context, const unsigned char *stringVal, unsigned int str
 }
 
 static int
+#if (YAJL_MAJOR >= 2)
+map_key_callback (void *context, const unsigned char *stringVal, size_t stringLen)
+#else
 map_key_callback (void *context, const unsigned char *stringVal, unsigned int stringLen)
+#endif
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
@@ -183,7 +199,13 @@ yajltcl_recreate_parser (yajltcl_clientData *yajlData)
 {
     yajltcl_free_parser (yajlData);
 
+#if (YAJL_MAJOR >= 2)
+    yajlData->parseHandle = yajl_alloc (&callbacks, NULL, yajlData->interp);
+    yajl_config(yajlData->parseHandle, yajl_allow_comments, yajlData->parseConfig.allowComments);
+    yajl_config(yajlData->parseHandle, yajl_dont_validate_strings, !yajlData->parseConfig.checkUTF8);
+#else
     yajlData->parseHandle = yajl_alloc (&callbacks, &yajlData->parseConfig, NULL, yajlData->interp);
+#endif
 }
 
 
@@ -210,7 +232,6 @@ void
 yajltcl_print_callback (void *context, const char *str, unsigned int len)
 {
     yajltcl_clientData *yajlData = (yajltcl_clientData *)context;
-
     Tcl_DStringAppend (&yajlData->dString, str, len);
 }
 
@@ -261,8 +282,14 @@ void
 yajltcl_recreate_generator (yajltcl_clientData *yajlData)
 {
     yajltcl_free_generator (yajlData);
-
+#if (YAJL_MAJOR >= 2)
+    yajlData->genHandle = yajl_gen_alloc(NULL);
+    yajl_gen_config(yajlData->genHandle, yajl_gen_print_callback, yajltcl_print_callback, yajlData);
+    yajl_gen_config(yajlData->genHandle, yajl_gen_beautify, yajlData->genConfig.beautify);
+    yajl_gen_config(yajlData->genHandle, yajl_gen_indent_string, yajlData->genConfig.indentString);
+#else
     yajlData->genHandle = yajl_gen_alloc2 (yajltcl_print_callback, &yajlData->genConfig, NULL, yajlData);
+#endif
 }
 
 
@@ -509,7 +536,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               string = Tcl_GetStringFromObj (objv[++arg], &len);
               status = yajl_parse (yajlData->parseHandle, (unsigned char *)string, len);
 
+#if (YAJL_MAJOR >= 2)
+              if (status != yajl_status_ok) {
+#else
               if (status != yajl_status_ok && status != yajl_status_insufficient_data) {
+#endif
                   unsigned char *str = yajl_get_error (yajlData->parseHandle, 1, (unsigned char *)string, len);
                   Tcl_ResetResult (interp);
                   Tcl_SetObjResult (interp, Tcl_NewStringObj ((char *)str, -1));
@@ -519,7 +550,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
           }
 
           case OPT_PARSE_COMPLETE: {
+#if (YAJL_MAJOR >= 2)
+              yajl_complete_parse(yajlData->parseHandle);
+#else
               yajl_parse_complete (yajlData->parseHandle);
+#endif
               break;
           }
 
@@ -562,6 +597,13 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               errString = "no internal buffer";
               break;
           }
+
+#if (YAJL_MAJOR >= 2)
+          case yajl_gen_invalid_string: {
+              errString = "invalid string";
+              break;
+          }
+#endif
         }
 
         if (errString != NULL) {
