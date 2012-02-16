@@ -40,7 +40,7 @@ boolean_callback (void *context, int boolean)
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
-    append_result_list (interp, "boolean", Tcl_NewBooleanObj(boolean));
+    append_result_list (interp, "bool", Tcl_NewBooleanObj(boolean));
     return 1;
 }
 

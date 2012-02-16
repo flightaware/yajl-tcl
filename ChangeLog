@@ -1,3 +1,7 @@
+2012-02-15 bovine
+    * Make the "parse" command output "bool" commands instead of "boolean"
+      to avoid roundtrip failure (Issue 5)
+
 2011-11-01 bovine
     * Make "number" command reject blank arguments as invalid (Issue 4)
 
