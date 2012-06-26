@@ -8,14 +8,15 @@ package require yajltcl
 
 namespace eval ::yajl {
 
-# helper method used by json2dict
-proc yajl_array_to_list {_yajl} {
+# internal helper method used by json2dict
+proc yajl_array_to_list {_yajl _index yajlLength} {
 	upvar $_yajl yajl
+	upvar $_index index
 
 	set result {}
-	while {$yajl != ""} {
-		set first [lindex $yajl 0]
-		set yajl [lrange $yajl 1 end]
+	while {$index < $yajlLength} {
+		set first [lindex $yajl $index]
+		incr index
 		switch -exact $first {
 			"array_close" {
 				return $result
@@ -25,8 +26,8 @@ proc yajl_array_to_list {_yajl} {
 			"double" -
 			"number" -
 			"string" {
-				set val [lindex $yajl 0]
-				set yajl [lrange $yajl 1 end]
+				set val [lindex $yajl $index]
+				incr index
 				lappend result $val
 			}
 			"null" {
@@ -34,11 +35,11 @@ proc yajl_array_to_list {_yajl} {
 			}
 			"array_open" {
 				# nested array
-				lappend result [yajl_array_to_list yajl]
+				lappend result [yajl_array_to_list yajl index $yajlLength]
 			}
 			"map_open" {
 				# nested map
-				lappend result [yajl_map_to_list yajl]
+				lappend result [yajl_map_to_list yajl index $yajlLength]
 			}
 			default {
 				error "unexpected yajl tag: $first"
@@ -48,13 +49,15 @@ proc yajl_array_to_list {_yajl} {
 	error "reached end of yajl without finding array_close"
 }
 
-# helper method used by json2dict
-proc yajl_map_to_list {_yajl} {
+# internal helper method used by json2dict
+proc yajl_map_to_list {_yajl _index yajlLength} {
 	upvar $_yajl yajl
+	upvar $_index index
+
 	set result {}
-	while {$yajl != ""} {
-		set first [lindex $yajl 0]
-		set yajl [lrange $yajl 1 end]
+	while {$index < $yajlLength} {
+		set first [lindex $yajl $index]
+		incr index
 		switch -exact $first {
 			"map_close" {
 				if {[llength $result] % 2 != 0} {
@@ -68,8 +71,8 @@ proc yajl_map_to_list {_yajl} {
 			"double" -
 			"number" -
 			"string" {
-				set val [lindex $yajl 0]
-				set yajl [lrange $yajl 1 end]
+				set val [lindex $yajl $index]
+				incr index
 				lappend result $val
 			}
 			"null" {
@@ -77,11 +80,11 @@ proc yajl_map_to_list {_yajl} {
 			}
 			"array_open" {
 				# nested array
-				lappend result [yajl_array_to_list yajl]
+				lappend result [yajl_array_to_list yajl index $yajlLength]
 			}
 			"map_open" {
 				# nested map
-				lappend result [yajl_map_to_list yajl]
+				lappend result [yajl_map_to_list yajl index $yajlLength]
 			}
 			default {
 				error "unexpected yajl tag: $first"
@@ -91,41 +94,42 @@ proc yajl_map_to_list {_yajl} {
 	error "reached end of yajl without finding map_close"
 }
 
-# helper method used by json2dict
-proc yajl_atom_to_list {_yajl} {
+# internal helper method used by json2dict
+proc yajl_atom_to_list {_yajl _index yajlLength} {
 	upvar $_yajl yajl
+	upvar $_index index
 
 	set result {}
 	set level 0
 	
-	if {$yajl != ""} {
-		set first [lindex $yajl 0]
-		set yajl [lrange $yajl 1 end]
+	if {$index < $yajlLength} {
+		set first [lindex $yajl $index]
+		incr index
 		switch -exact $first {
 			"integer" -
 			"bool" -
 			"double" -
 			"number" -
 			"string" {
-				set val [lindex $yajl 0]
-				set yajl [lrange $yajl 1 end]
+				set val [lindex $yajl $index]
+				incr index
 				lappend result $val
 			}
 			"null" {
 				lappend result "null"
 			}
 			"map_open" {
-				lappend result [yajl_map_to_list yajl]
+				lappend result [yajl_map_to_list yajl index $yajlLength]
 			}
 			"array_open" {
-				lappend result [yajl_array_to_list yajl]
+				lappend result [yajl_array_to_list yajl index $yajlLength]
 			}
 			default {
 				error "unexpected yajl tag: $first"
 			}
 		}
-		if {$yajl != ""} {
-			error "leftover yajl tags: $yajl"
+		if {$index < $yajlLength} {
+			error "leftover yajl tags: [lrange $yajl $index end]"
 		}
 	}
 
@@ -141,7 +145,8 @@ proc yajl_atom_to_list {_yajl} {
 proc json2dict {jsonText} {
 	set obj [yajl create #auto]
 	set yajl [$obj parse $jsonText]
-	set result [yajl_atom_to_list yajl]
+	set index 0
+	set result [yajl_atom_to_list yajl index [llength $yajl]]
 	$obj delete
 	return {*}$result
 }
