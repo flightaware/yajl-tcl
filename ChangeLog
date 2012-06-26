@@ -1,3 +1,6 @@
+2012-06-26 bovine
+    * Improve performance of json2dict method by reducing copying
+
 2012-02-15 bovine
     * Make the "parse" command output "bool" commands instead of "boolean"
       to avoid roundtrip failure (Issue 5)
