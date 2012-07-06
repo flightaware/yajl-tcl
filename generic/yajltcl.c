@@ -9,6 +9,9 @@
 
 /* PARSER STUFF */
 
+/* append_result_list - append to the Tcl result object a new string object
+ * of the contents of the type string followed by the passed-in Tcl objuect
+ */
 static int
 append_result_list (Tcl_Interp *interp, char *type, Tcl_Obj *object)
 {
@@ -19,6 +22,9 @@ append_result_list (Tcl_Interp *interp, char *type, Tcl_Obj *object)
     return 1;
 }
 
+/* append_string - append the passed-in string to the list being formed
+ * on the result object
+ */
 static int
 append_string (Tcl_Interp *interp, char *string)
 {
@@ -26,6 +32,9 @@ append_string (Tcl_Interp *interp, char *string)
     return 1;
 }
 
+/* null_callback - append the string "null" to the list being formed
+ * on the result object
+ */
 static int
 null_callback (void *context)
 {
@@ -35,6 +44,9 @@ null_callback (void *context)
     return 1;
 }
 
+/* boolean_callback - append the string "bool" to the list being formed
+ * on the result object followed by a boolean value
+ */
 static int
 boolean_callback (void *context, int boolean)
 {
@@ -44,6 +56,11 @@ boolean_callback (void *context, int boolean)
     return 1;
 }
 
+/* integer_callback - append the string "integer" to the list being formed
+ * on the result object followed by an integer value
+ *
+ * note that for newer yajl it's a long but for older, a long long
+ */
 static int
 #if (YAJL_MAJOR >= 2)
 integer_callback (void *context, long integerVal)
@@ -57,6 +74,9 @@ integer_callback (void *context, long long integerVal)
     return 1;
 }
 
+/* double_callback - append the string "double" to the list being formed
+ * on the result object followed by an double-precision floating point value
+ */
 static int
 double_callback (void *context, double doubleVal)
 {
@@ -66,6 +86,10 @@ double_callback (void *context, double doubleVal)
     return 1;
 }
 
+/* number_callback - append the string "number" to the list being formed
+ * on the result object followed by a string (!) containing a number of some
+ * kind or another
+ */
 static int
 #if (YAJL_MAJOR >= 2)
 number_callback (void *context, const char *s, size_t l)
@@ -79,6 +103,9 @@ number_callback (void *context, const char *s, unsigned int l)
     return 1;
 }
 
+/* string_callback - append the string "string" to the list being formed
+ * on the result object followed by the passed-in string
+ */
 static int
 #if (YAJL_MAJOR >= 2)
 string_callback (void *context, const unsigned char *stringVal, size_t stringLen)
@@ -92,6 +119,9 @@ string_callback (void *context, const unsigned char *stringVal, unsigned int str
     return 1;
 }
 
+/* map_key_callback - append the string "map_key" to the list being formed
+ * on the result object followed by the passed-in string
+ */
 static int
 #if (YAJL_MAJOR >= 2)
 map_key_callback (void *context, const unsigned char *stringVal, size_t stringLen)
@@ -105,6 +135,9 @@ map_key_callback (void *context, const unsigned char *stringVal, unsigned int st
     return 1;
 }
 
+/* map_start_callback - append the string "map_open" to the list being formed
+ * on the result object
+ */
 static int
 map_start_callback (void *context)
 {
@@ -114,6 +147,9 @@ map_start_callback (void *context)
     return 1;
 }
 
+/* map_end_callback - append the string "map_close" to the list being formed
+ * on the result object
+ */
 static int
 map_end_callback (void *context)
 {
@@ -123,6 +159,9 @@ map_end_callback (void *context)
     return 1;
 }
 
+/* array_start_callback - append the string "array_open" to the list being
+ * formed on the result object
+ */
 static int
 array_start_callback (void *context)
 {
@@ -132,6 +171,9 @@ array_start_callback (void *context)
     return 1;
 }
 
+/* array_end_callback - append the string "array_close" to the list being
+ * formed on the result object
+ */
 static int
 array_end_callback (void *context)
 {
@@ -141,6 +183,7 @@ array_end_callback (void *context)
     return 1;
 }
 
+/* define the yajl callbacks table */
 static yajl_callbacks callbacks = {
     null_callback,
     boolean_callback,
@@ -381,61 +424,79 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         OPT_PARSE_COMPLETE
     };
 
+    /* basic validation of command line arguments */
     if (objc < 2) {
         Tcl_WrongNumArgs (interp, 1, objv, "option ?value? ?option ?value?...?");
         return TCL_ERROR;
     }
 
+    /* for each argument, see if it's array_open, array_close, bool, clear,
+     * double, integer, map_close, map_open, null, number, string, map_key,
+     * free, get, reset, delete, parse, or parse_complete and handle
+     * accordingly
+     */
     for (arg = 1; arg < objc; arg++) {
 
+	/* convert the option name to an enum index -- if we get an error,
+	 * we're done
+	 */
         if (Tcl_GetIndexFromObj (interp, objv[arg], options, "option",
             TCL_EXACT, &optIndex) != TCL_OK) {
             return TCL_ERROR;
         }
 
         switch ((enum options) optIndex) {
+	  // array_open?  generate an array_open
           case OPT_ARRAY_OPEN: {
               status = yajl_gen_array_open (hand);
               break;
           }
 
+	  // array_close?  generate an array_close
           case OPT_ARRAY_CLOSE: {
               status = yajl_gen_array_close (hand);
               break;
           }
 
+	  // map_open?  generate a map_open
           case OPT_MAP_OPEN: {
               status = yajl_gen_map_open (hand);
               break;
           }
 
+	  // map_close?  generate a map_close
           case OPT_MAP_CLOSE: {
               status = yajl_gen_map_close (hand);
               break;
           }
 
+	  // null?  generate a null
           case OPT_NULL: {
               status = yajl_gen_null (hand);
               break;
           }
 
+	  // get?  generate the string into the result
           case OPT_GET: {
               Tcl_DStringResult (interp, &yajlData->dString);
               Tcl_DStringFree (&yajlData->dString);
               return TCL_OK;
           }
 
+	  // reset?  reset the generator and the parser
           case OPT_RESET: {
               yajltcl_recreate_generator (yajlData);
               yajltcl_recreate_parser (yajlData);
               return TCL_OK;
           }
 
+	  // delete?  delete the yajl-tcl command we created earlier
           case OPT_DELETE: {
               Tcl_DeleteCommandFromToken(interp, yajlData->cmdToken);
               return TCL_OK;
           }
 
+	  // clear? - clear the yajl result
           case OPT_CLEAR: {
               yajl_gen_clear (hand);
               status = yajl_gen_status_ok;
@@ -443,6 +504,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               break;
           }
 
+	  // bool? generate a boolean string and value
           case OPT_BOOL: {
               int bool;
 
@@ -459,6 +521,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               break;
           }
 
+	  // double? generate a double string and value
           case OPT_DOUBLE: {
               double doub;
 
@@ -475,6 +538,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               break;
           }
 
+	  // integer? generate an integer string and value
           case OPT_INTEGER: {
               long lon;
 
@@ -491,6 +555,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               break;
           }
 
+	  // number? generate a number string and value
           case OPT_NUMBER: {
               char *number;
               int   len;
@@ -509,6 +574,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               break;
           }
 
+	  // map_key or string? generate a "string" string and value
           case OPT_MAP_KEY:
           case OPT_STRING: {
               char *string;
@@ -524,6 +590,8 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               break;
           }
 
+	  // parse? generate a parse of the following json text
+	  // and return
           case OPT_PARSE: {
               char *string;
               int   len;
@@ -549,6 +617,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               break;
           }
 
+	  // parse_complete? mark that the parse is complete
           case OPT_PARSE_COMPLETE: {
 #if (YAJL_MAJOR >= 2)
               yajl_complete_parse(yajlData->parseHandle);
@@ -558,37 +627,46 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               break;
           }
 
+	  // free? no-op
           case OPT_FREE: {
           }
 
         }
 
+	// dispatch based on the status we got back from yajl
         switch (status) {
           case yajl_gen_status_ok: {
+	      // ok - cool
               break;
           }
 
           case yajl_gen_keys_must_be_strings: {
+	      // map without a map key, error
               errString = "map key needed but string not called";
               break;
           }
 
           case yajl_max_depth_exceeded: {
+	      // max depth exceeded, error
               errString = "maximum generation depth exceeded";
               break;
           }
 
           case yajl_gen_in_error_state: {
+	      // can't generate without clearing the error
               errString = "generator option called while in error state";
               break;
           }
 
           case yajl_gen_generation_complete: {
+	      // can't do anything after generation is complete without 
+	      // resetting
               errString = "generation complete, reset the object before reuse";
               break;
           }
 
           case yajl_gen_invalid_number: {
+	      // invalid number error
               errString = "invalid floating point value";
               break;
           }
@@ -600,12 +678,15 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
 #if (YAJL_MAJOR >= 2)
           case yajl_gen_invalid_string: {
+	      // invalid string error
               errString = "invalid string";
               break;
           }
 #endif
         }
 
+	// if errString is set, pass the error back to Tcl with as much
+	// info as possible and in a standard way
         if (errString != NULL) {
             char argString[32];
 
@@ -679,16 +760,19 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
         SUBOPT_CHECKUTF8
     };
 
+    // basic command line processing
     if (objc < 3 || (objc & 1) == 0) {
         Tcl_WrongNumArgs (interp, 1, objv, "create name ?-beautify 0|1? ?-indent string?");
         return TCL_ERROR;
     }
 
+    // argument must be one of the subOptions defined above
     if (Tcl_GetIndexFromObj (interp, objv[1], options, "option",
         TCL_EXACT, &optIndex) != TCL_OK) {
         return TCL_ERROR;
     }
 
+    // allocate one of our yajl client data objects for Tcl and configure it
     yajlData = (yajltcl_clientData *)ckalloc (sizeof (yajltcl_clientData));
 
     yajlData->genConfig.beautify = 0;
@@ -702,6 +786,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     yajlData->parseHandle = NULL;
     Tcl_DStringInit (&yajlData->dString);
 
+    // process the remaining arguments as key-value pairs
     for (i = 3; i < objc; i += 2) {
         if (Tcl_GetIndexFromObj (interp, objv[i], subOptions, "suboption",
             TCL_EXACT, &suboptIndex) != TCL_OK) {
@@ -709,6 +794,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
         }
 
         switch ((enum suboptions)suboptIndex ) {
+	    // set the beautify option (nested versus flat appearance)
             case SUBOPT_BEAUTIFY: {
                 int beautify;
 
@@ -719,11 +805,13 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
                 break;
             }
 
+	    // set the indent option
             case SUBOPT_INDENT: {
                 yajlData->genConfig.indentString = Tcl_GetString (objv[i+1]);
                 break;
             }
 
+	    // set the allow comments option
             case SUBOPT_ALLOWCOMMENTS: {
                 int allowComments;
 
@@ -734,6 +822,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
                 break;
             }
 
+	    // set the "check UTF8" option
             case SUBOPT_CHECKUTF8: {
                 int checkUTF8;
 
@@ -751,7 +840,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
 
     commandName = Tcl_GetString (objv[2]);
 
-    // if commandName is #auto, generate a name
+    // if commandName is #auto, generate a unique name for the object
     if (strcmp (commandName, "#auto") == 0) {
         static unsigned long nextAutoCounter = 0;
         char *objName;
@@ -763,7 +852,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
         snprintf (commandName, baseNameLength, "%s%lu", objName, nextAutoCounter++);
     }
 
-
+    // create a Tcl command to interface to yajl
     yajlData->cmdToken = Tcl_CreateObjCommand (interp, commandName, yajltcl_yajlObjectObjCmd, yajlData, yajltcl_yajlObjectDelete);
     Tcl_SetObjResult (interp, Tcl_NewStringObj (commandName, -1));
     return TCL_OK;

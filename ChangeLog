@@ -1,3 +1,6 @@
+2012-07-06 karl
+    * Comments.
+
 2012-02-15 bovine
     * Make the "parse" command output "bool" commands instead of "boolean"
       to avoid roundtrip failure (Issue 5)
