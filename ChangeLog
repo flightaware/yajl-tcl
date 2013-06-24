@@ -1,3 +1,10 @@
+2013-06-24 karl
+    * Use "delete" method rather than rename object to "" to delete
+      intermediate yajltcl objects when turning arrays into json, etc.
+
+      Update example in README.md too.
+
+
 2013-01-10 dongola7
     * Fixing some memory leaks when creating and destroying yajl objects.
 

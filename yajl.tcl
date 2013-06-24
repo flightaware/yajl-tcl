@@ -177,7 +177,7 @@ proc array_to_json {_array} {
 	set json [yajl create #auto -beautify 1]
 	add_array_to_json $json array
 	set result [$json get]
-	rename $json ""
+	$json delete
 	return $result
 }
 
@@ -207,7 +207,7 @@ proc pg_select_to_json {db sql} {
 	add_pgresult_tuples_to_json $json $res
 	pg_result $res -clear
 	set result [$json get]
-	rename $json ""
+	$json delete
 	return $result
 }
 

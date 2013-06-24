@@ -187,7 +187,7 @@ Example usage:
 set json [yajl create #auto]
 add_array_to_json $json array
 puts [$json get]
-rename $json ""
+$json delete
 ```
 
 ```array_to_json arrayName``` - return the contents of the array as JSON text
