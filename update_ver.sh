@@ -2,7 +2,7 @@
 
 # This script simplifies the process of incrementing all version numbers for a new release.
 
-NEWVER="1.3"
+NEWVER="1.4"
 
 perl -p -i -e "s/^(AC_INIT\\(\\[[a-z_]+\\],) \\[[0-9.]+\\]/\\1 \\[$NEWVER\\]/" configure.in
 

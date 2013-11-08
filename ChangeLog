@@ -1,3 +1,10 @@
+2013-11-08 bovine
+    * Update and tag for 1.4 release
+
+2013-11-08 gahr
+
+    * API of integer_callback changed the other way around
+
 2013-06-24 karl
     * Use "delete" method rather than rename object to "" to delete
       intermediate yajltcl objects when turning arrays into json, etc.
