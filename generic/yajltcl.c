@@ -63,9 +63,9 @@ boolean_callback (void *context, int boolean)
  */
 static int
 #if (YAJL_MAJOR >= 2)
-integer_callback (void *context, long integerVal)
-#else
 integer_callback (void *context, long long integerVal)
+#else
+integer_callback (void *context, long integerVal)
 #endif
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
