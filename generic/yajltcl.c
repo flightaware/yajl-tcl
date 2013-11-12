@@ -381,8 +381,9 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
     int         arg;
     yajltcl_clientData *yajlData = (yajltcl_clientData *)cData;
     yajl_gen hand = yajlData->genHandle;
-    yajl_gen_status status = yajl_gen_status_ok;
-    char *errString = NULL;
+    yajl_gen_status gstatus = yajl_gen_status_ok;
+    yajl_status pstatus = yajl_status_ok;
+    const char *errString = NULL;
 
     static CONST char *options[] = {
         "array_open",
@@ -451,31 +452,31 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         switch ((enum options) optIndex) {
 	  // array_open?  generate an array_open
           case OPT_ARRAY_OPEN: {
-              status = yajl_gen_array_open (hand);
+              gstatus = yajl_gen_array_open (hand);
               break;
           }
 
 	  // array_close?  generate an array_close
           case OPT_ARRAY_CLOSE: {
-              status = yajl_gen_array_close (hand);
+              gstatus = yajl_gen_array_close (hand);
               break;
           }
 
 	  // map_open?  generate a map_open
           case OPT_MAP_OPEN: {
-              status = yajl_gen_map_open (hand);
+              gstatus = yajl_gen_map_open (hand);
               break;
           }
 
 	  // map_close?  generate a map_close
           case OPT_MAP_CLOSE: {
-              status = yajl_gen_map_close (hand);
+              gstatus = yajl_gen_map_close (hand);
               break;
           }
 
 	  // null?  generate a null
           case OPT_NULL: {
-              status = yajl_gen_null (hand);
+              gstatus = yajl_gen_null (hand);
               break;
           }
 
@@ -502,7 +503,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  // clear? - clear the yajl result
           case OPT_CLEAR: {
               yajl_gen_clear (hand);
-              status = yajl_gen_status_ok;
+              gstatus = yajl_gen_status_ok;
               Tcl_DStringFree (&yajlData->dString);
               break;
           }
@@ -520,7 +521,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
                   return TCL_ERROR;
               }
 
-              status = yajl_gen_bool (hand, bool);
+              gstatus = yajl_gen_bool (hand, bool);
               break;
           }
 
@@ -537,7 +538,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
                   return TCL_ERROR;
               }
 
-              status = yajl_gen_double (hand, doub);
+              gstatus = yajl_gen_double (hand, doub);
               break;
           }
 
@@ -554,7 +555,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
                   return TCL_ERROR;
               }
 
-              status = yajl_gen_integer (hand, lon);
+              gstatus = yajl_gen_integer (hand, lon);
               break;
           }
 
@@ -573,7 +574,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
                   Tcl_AppendResult(interp, "invalid value \"", number, "\" for number", NULL);
                   return TCL_ERROR;
               }
-              status = yajl_gen_number (hand, number, len);
+              gstatus = yajl_gen_number (hand, number, len);
               break;
           }
 
@@ -589,7 +590,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               }
 
               string = Tcl_GetStringFromObj (objv[++arg], &len);
-              status = yajl_gen_string (hand, (unsigned char *)string, len);
+              gstatus = yajl_gen_string (hand, (unsigned char *)string, len);
               break;
           }
 
@@ -605,13 +606,9 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               }
 
               string = Tcl_GetStringFromObj (objv[++arg], &len);
-              status = yajl_parse (yajlData->parseHandle, (unsigned char *)string, len);
+              pstatus = yajl_parse (yajlData->parseHandle, (unsigned char *)string, len);
 
-#if (YAJL_MAJOR >= 2)
-              if (status != yajl_status_ok) {
-#else
-              if (status != yajl_status_ok && status != yajl_status_insufficient_data) {
-#endif
+              if (pstatus != yajl_status_ok) {
                   unsigned char *str = yajl_get_error (yajlData->parseHandle, 1, (unsigned char *)string, len);
                   Tcl_ResetResult (interp);
                   Tcl_SetObjResult (interp, Tcl_NewStringObj ((char *)str, -1));
@@ -623,7 +620,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  // parse_complete? mark that the parse is complete
           case OPT_PARSE_COMPLETE: {
 #if (YAJL_MAJOR >= 2)
-              yajl_complete_parse(yajlData->parseHandle);
+              yajl_complete_parse (yajlData->parseHandle);
 #else
               yajl_parse_complete (yajlData->parseHandle);
 #endif
@@ -637,7 +634,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         }
 
 	// dispatch based on the status we got back from yajl
-        switch (status) {
+        switch (gstatus) {
           case yajl_gen_status_ok: {
 	      // ok - cool
               break;
@@ -686,6 +683,10 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               break;
           }
 #endif
+        }
+
+        if (pstatus != yajl_status_ok) {
+            errString = yajl_status_to_string (pstatus);
         }
 
 	// if errString is set, pass the error back to Tcl with as much
