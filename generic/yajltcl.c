@@ -383,7 +383,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
     yajl_gen hand = yajlData->genHandle;
     yajl_gen_status gstatus = yajl_gen_status_ok;
     yajl_status pstatus = yajl_status_ok;
-    char *errString = NULL;
+    const char *errString = NULL;
 
     static CONST char *options[] = {
         "array_open",
@@ -608,11 +608,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               string = Tcl_GetStringFromObj (objv[++arg], &len);
               pstatus = yajl_parse (yajlData->parseHandle, (unsigned char *)string, len);
 
-#if (YAJL_MAJOR >= 2)
-              if (pstatus != yajl_status_ok || gstatus != yajl_gen_status_ok) {
-#else
-              if ((pstatus != yajl_status_ok && pstatus != yajl_status_insufficient_data) || gstatus != yajl_status_ok) {
-#endif
+              if (pstatus != yajl_status_ok) {
                   unsigned char *str = yajl_get_error (yajlData->parseHandle, 1, (unsigned char *)string, len);
                   Tcl_ResetResult (interp);
                   Tcl_SetObjResult (interp, Tcl_NewStringObj ((char *)str, -1));
@@ -624,7 +620,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  // parse_complete? mark that the parse is complete
           case OPT_PARSE_COMPLETE: {
 #if (YAJL_MAJOR >= 2)
-              yajl_complete_parse(yajlData->parseHandle);
+              yajl_complete_parse (yajlData->parseHandle);
 #else
               yajl_parse_complete (yajlData->parseHandle);
 #endif
@@ -689,21 +685,8 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 #endif
         }
 
-        switch (pstatus) {
-          case yajl_status_ok:
-	      // ok - cool
-              break;
-          case yajl_status_client_canceled:
-              errString = "callback canceled";
-              break;
-#if (YAJL_MAJOR < 2)
-          case yajl_status_insufficient_data:
-              errString = "insufficient data";
-              break;
-#endif
-          case yajl_status_error:
-              errString = "error";
-              break;
+        if (pstatus != yajl_status_ok) {
+            errString = yajl_status_to_string (pstatus);
         }
 
 	// if errString is set, pass the error back to Tcl with as much
