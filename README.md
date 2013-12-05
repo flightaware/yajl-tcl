@@ -148,8 +148,8 @@ set list [$object parse $json]
 
 List will be as above.
 
-Alternatively, you can use ```::yajl::json2dict``` to JSON into a key-value
-list that be loaded into an array.  As an example, the JSON from prior
+Alternatively, you can use ```::yajl::json2dict``` to turn JSON into a key-value
+list that be loaded into an array.  As an example, the JSON from the prior
 section can be parsed using code similar to the following:
 
 ```tcl
