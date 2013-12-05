@@ -201,7 +201,7 @@ parse2dict_null_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    Tcl_DStringAppendElement (&yajlData->p2dString, "{}");
+    Tcl_DStringAppendElement (&yajlData->p2dString, "null");
     return 1;
 }
 
