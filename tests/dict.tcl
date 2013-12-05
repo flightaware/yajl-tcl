@@ -29,24 +29,10 @@ proc dotest {raw} {
 		puts "yajl took [expr $end-$start] clicks"
 	}
 
-
-	# do the yajl method.
-	set start [clock clicks]
-	for {set i 0} {$i < $count} {incr i} {
-		yajl create x
-		set actual2 [x parse2dict $raw]
-		x delete
-	}
-	set end [clock clicks]
-	if {$count > 1} {
-		puts "yajl2 took [expr $end-$start] clicks"
-	}
-
 	# compare the results.
 	puts "Expected: $expected"
 	puts "Actual: $actual"
-	puts "Actual2: $actual2"
-	if {$actual != $expected || $actual2 != $expected} {
+	if {$actual != $expected} {
 		puts "Input: $raw"
 		puts "FAILED"
 		incr ::failed
