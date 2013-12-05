@@ -23,6 +23,8 @@ typedef struct yajltcl_clientData
     Tcl_Interp *interp;
     yajl_gen genHandle;
     Tcl_DString dString;
+    Tcl_DString p2dString;
+    int p2dDepth;
 
     struct my_gen_config {
       int beautify;
@@ -30,6 +32,7 @@ typedef struct yajltcl_clientData
     } genConfig;
 
     yajl_handle parseHandle;
+    yajl_handle parse2dictHandle;
 
     struct my_parser_config {
       int checkUTF8;

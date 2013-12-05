@@ -38,7 +38,9 @@ append_string (Tcl_Interp *interp, char *string)
 static int
 null_callback (void *context)
 {
-    Tcl_Interp *interp = (Tcl_Interp *)context;
+    //yajltcl_clientData *yajlData = (yajltcl_clientData *)context;
+    yajltcl_clientData *yajlData = context;
+    Tcl_Interp *interp = yajlData->interp;
 
     append_string (interp, "null");
     return 1;
@@ -50,7 +52,8 @@ null_callback (void *context)
 static int
 boolean_callback (void *context, int boolean)
 {
-    Tcl_Interp *interp = (Tcl_Interp *)context;
+    yajltcl_clientData *yajlData = context;
+    Tcl_Interp *interp = yajlData->interp;
 
     append_result_list (interp, "bool", Tcl_NewBooleanObj(boolean));
     return 1;
@@ -64,7 +67,8 @@ boolean_callback (void *context, int boolean)
 static int
 integer_callback (void *context, long long integerVal)
 {
-    Tcl_Interp *interp = (Tcl_Interp *)context;
+    yajltcl_clientData *yajlData = context;
+    Tcl_Interp *interp = yajlData->interp;
 
     append_result_list (interp, "integer", Tcl_NewLongObj(integerVal));
     return 1;
@@ -76,7 +80,8 @@ integer_callback (void *context, long long integerVal)
 static int
 double_callback (void *context, double doubleVal)
 {
-    Tcl_Interp *interp = (Tcl_Interp *)context;
+    yajltcl_clientData *yajlData = context;
+    Tcl_Interp *interp = yajlData->interp;
 
     append_result_list (interp, "double", Tcl_NewDoubleObj(doubleVal));
     return 1;
@@ -89,7 +94,8 @@ double_callback (void *context, double doubleVal)
 static int
 number_callback (void *context, const char *s, size_t l)
 {
-    Tcl_Interp *interp = (Tcl_Interp *)context;
+    yajltcl_clientData *yajlData = context;
+    Tcl_Interp *interp = yajlData->interp;
 
     append_result_list (interp, "number", Tcl_NewStringObj(s, l));
     return 1;
@@ -101,7 +107,8 @@ number_callback (void *context, const char *s, size_t l)
 static int
 string_callback (void *context, const unsigned char *stringVal, size_t stringLen)
 {
-    Tcl_Interp *interp = (Tcl_Interp *)context;
+    yajltcl_clientData *yajlData = context;
+    Tcl_Interp *interp = yajlData->interp;
 
     append_result_list (interp, "string", Tcl_NewStringObj((char *)stringVal, stringLen));
     return 1;
@@ -113,7 +120,8 @@ string_callback (void *context, const unsigned char *stringVal, size_t stringLen
 static int
 map_key_callback (void *context, const unsigned char *stringVal, size_t stringLen)
 {
-    Tcl_Interp *interp = (Tcl_Interp *)context;
+    yajltcl_clientData *yajlData = context;
+    Tcl_Interp *interp = yajlData->interp;
 
     append_result_list (interp, "map_key", Tcl_NewStringObj((char *)stringVal, stringLen));
     return 1;
@@ -125,7 +133,8 @@ map_key_callback (void *context, const unsigned char *stringVal, size_t stringLe
 static int
 map_start_callback (void *context)
 {
-    Tcl_Interp *interp = (Tcl_Interp *)context;
+    yajltcl_clientData *yajlData = context;
+    Tcl_Interp *interp = yajlData->interp;
 
     append_string (interp, "map_open");
     return 1;
@@ -137,7 +146,8 @@ map_start_callback (void *context)
 static int
 map_end_callback (void *context)
 {
-    Tcl_Interp *interp = (Tcl_Interp *)context;
+    yajltcl_clientData *yajlData = context;
+    Tcl_Interp *interp = yajlData->interp;
 
     append_string (interp, "map_close");
     return 1;
@@ -149,7 +159,8 @@ map_end_callback (void *context)
 static int
 array_start_callback (void *context)
 {
-    Tcl_Interp *interp = (Tcl_Interp *)context;
+    yajltcl_clientData *yajlData = context;
+    Tcl_Interp *interp = yajlData->interp;
 
     append_string (interp, "array_open");
     return 1;
@@ -161,7 +172,8 @@ array_start_callback (void *context)
 static int
 array_end_callback (void *context)
 {
-    Tcl_Interp *interp = (Tcl_Interp *)context;
+    yajltcl_clientData *yajlData = context;
+    Tcl_Interp *interp = yajlData->interp;
 
     append_string (interp, "array_close");
     return 1;
@@ -182,15 +194,105 @@ static yajl_callbacks callbacks = {
     array_end_callback
 };
 
+/* parse2dict_null_callback - append a null element to the dynamic string
+ */
+static int
+parse2dict_null_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringAppendElement (&yajlData->p2dString, "{}");
+    return 1;
+}
+
+/* parse2dict_boolean_callback - append a boolean element to the dynamic string
+ */
+static int
+parse2dict_boolean_callback (void *context, int boolean)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringAppendElement (&yajlData->p2dString, boolean ? "1" : "0");
+    return 1;
+}
+
+/* parse2dict_number_callback - append a number element to the dynamic string
+ */
+static int
+parse2dict_number_callback (void *context, const char *s, size_t l)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringSetLength (&yajlData->dString, 0);
+    Tcl_DStringAppend (&yajlData->dString, s, l);
+    Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
+    return 1;
+}
+
+/* parse2dict_string_callback - append a element to the dynamic string
+ */
+static int
+parse2dict_string_callback (void *context, const unsigned char *stringVal, size_t stringLen)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringSetLength (&yajlData->dString, 0);
+    Tcl_DStringAppend (&yajlData->dString, (const char *)stringVal, stringLen);
+    Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
+    return 1;
+}
+
+/* parse2dict_start_sublist_callback - start a sublist
+ */
+static int
+parse2dict_start_sublist_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    // start a sublist unless we're at the top level
+    if (yajlData->p2dDepth++ > 0) {
+	Tcl_DStringStartSublist (&yajlData->p2dString);
+    }
+    return 1;
+}
+
+/* parse2dict_end_sublist_callback - finish a sublist
+ */
+static int
+parse2dict_end_sublist_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    if (--yajlData->p2dDepth > 0) {
+	Tcl_DStringEndSublist (&yajlData->p2dString);
+    }
+    return 1;
+}
+
+/* define the yajl callbacks table */
+static yajl_callbacks parse2dict_callbacks = {
+    parse2dict_null_callback,
+    parse2dict_boolean_callback,
+    NULL,
+    NULL,
+    parse2dict_number_callback,
+    parse2dict_string_callback,
+    parse2dict_start_sublist_callback,
+    parse2dict_string_callback,
+    parse2dict_end_sublist_callback,
+    parse2dict_start_sublist_callback,
+    parse2dict_end_sublist_callback
+};
+
 
 /*
  *--------------------------------------------------------------
  *
- * yajltcl_free_parser -- free the YAJL parser and associated
+ * yajltcl_free_parsers -- free the YAJL parsers and associated
  *  data.
  *
  * Results:
- *      frees the YAJL parser handle if it exists.
+ *      frees the YAJL parser handles for all that exist.
  *
  * Side effects:
  *      None.
@@ -198,10 +300,16 @@ static yajl_callbacks callbacks = {
  *--------------------------------------------------------------
  */
 void
-yajltcl_free_parser (yajltcl_clientData *yajlData)
+yajltcl_free_parsers (yajltcl_clientData *yajlData)
 {
+    Tcl_DStringFree (&yajlData->p2dString);
+
     if (yajlData->parseHandle != NULL) {
         yajl_free (yajlData->parseHandle);
+    }
+
+    if (yajlData->parse2dictHandle != NULL) {
+        yajl_free (yajlData->parse2dictHandle);
     }
 }
 
@@ -209,12 +317,38 @@ yajltcl_free_parser (yajltcl_clientData *yajlData)
 /*
  *--------------------------------------------------------------
  *
- * yajltcl_recreate_parser -- create or recreate the YAJL parser
+ * yajltcl_make_parser -- create one instance of the YAJL
+ * parser and associated data.
+ *
+ * Results:
+ *
+ * Side effects:
+ *      None.
+ *
+ *--------------------------------------------------------------
+ */
+yajl_handle
+yajltcl_make_parser (yajltcl_clientData *yajlData, yajl_callbacks *callbacks)
+{
+    yajl_handle parseHandle;
+
+    parseHandle = yajl_alloc (callbacks, NULL, yajlData);
+
+    yajl_config(parseHandle, yajl_allow_comments, yajlData->parseConfig.allowComments);
+    yajl_config(parseHandle, yajl_dont_validate_strings, !yajlData->parseConfig.checkUTF8);
+
+    return parseHandle;
+}
+
+/*
+ *--------------------------------------------------------------
+ *
+ * yajltcl_recreate_parsers -- create or recreate the YAJL parsers
  * and associated data.
  *
  * Results:
- *      ...frees the YAJL parser handle if it exists.
- *      ...creates a new YAJL parser object.
+ *      ...frees the YAJL parser's handles for ones that exists.
+ *      ...creates new YAJL parser objects.
  *
  * Side effects:
  *      None.
@@ -222,13 +356,12 @@ yajltcl_free_parser (yajltcl_clientData *yajlData)
  *--------------------------------------------------------------
  */
 void
-yajltcl_recreate_parser (yajltcl_clientData *yajlData)
+yajltcl_recreate_parsers (yajltcl_clientData *yajlData)
 {
-    yajltcl_free_parser (yajlData);
+    yajltcl_free_parsers (yajlData);
 
-    yajlData->parseHandle = yajl_alloc (&callbacks, NULL, yajlData->interp);
-    yajl_config(yajlData->parseHandle, yajl_allow_comments, yajlData->parseConfig.allowComments);
-    yajl_config(yajlData->parseHandle, yajl_dont_validate_strings, !yajlData->parseConfig.checkUTF8);
+    yajlData->parseHandle = yajltcl_make_parser (yajlData, &callbacks);
+    yajlData->parse2dictHandle = yajltcl_make_parser (yajlData, &parse2dict_callbacks);
 }
 
 
@@ -332,7 +465,7 @@ yajltcl_yajlObjectDelete (ClientData clientData)
     yajltcl_clientData *yajlData = (yajltcl_clientData *)clientData;
 
     yajltcl_free_generator (yajlData);
-    yajltcl_free_parser(yajlData);
+    yajltcl_free_parsers (yajlData);
 
     ckfree(clientData);
 }
@@ -379,6 +512,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         "reset",
         "delete",
         "parse",
+        "parse2dict",
         "parse_complete",
         NULL
     };
@@ -401,6 +535,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         OPT_RESET,
         OPT_DELETE,
         OPT_PARSE,
+        OPT_PARSE2DICT,
         OPT_PARSE_COMPLETE
     };
 
@@ -466,7 +601,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  // reset?  reset the generator and the parser
           case OPT_RESET: {
               yajltcl_recreate_generator (yajlData);
-              yajltcl_recreate_parser (yajlData);
+              yajltcl_recreate_parsers (yajlData);
               return TCL_OK;
           }
 
@@ -572,30 +707,45 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
 	  // parse? generate a parse of the following json text
 	  // and return
+          case OPT_PARSE2DICT:
           case OPT_PARSE: {
               char *string;
               int   len;
+	      yajl_handle parseHandle;
 
               if (arg + 1 >= objc) {
                   Tcl_WrongNumArgs (interp, 1, objv, "parse jsonText");
                   return TCL_ERROR;
-              }
+              } 
+
+	      if ((enum options) optIndex == OPT_PARSE) {
+		parseHandle = yajlData->parseHandle;
+	      } else {
+		parseHandle = yajlData->parse2dictHandle;
+	      }
 
               string = Tcl_GetStringFromObj (objv[++arg], &len);
-              pstatus = yajl_parse (yajlData->parseHandle, (unsigned char *)string, len);
+              pstatus = yajl_parse (parseHandle, (unsigned char *)string, len);
 
               if (pstatus != yajl_status_ok) {
-                  unsigned char *str = yajl_get_error (yajlData->parseHandle, 1, (unsigned char *)string, len);
+                  unsigned char *str = yajl_get_error (parseHandle, 1, (unsigned char *)string, len);
                   Tcl_ResetResult (interp);
                   Tcl_SetObjResult (interp, Tcl_NewStringObj ((char *)str, -1));
                   return TCL_ERROR;
               }
+
+	      // parse2dict? set the Tcl result to the dynamic string
+	      // we've been building
+	      if ((enum options) optIndex == OPT_PARSE2DICT) {
+	          Tcl_DStringResult (interp, &yajlData->p2dString);
+	      }
               break;
           }
 
 	  // parse_complete? mark that the parse is complete
           case OPT_PARSE_COMPLETE: {
               yajl_complete_parse (yajlData->parseHandle);
+              yajl_complete_parse (yajlData->parse2dictHandle);
               break;
           }
 
@@ -759,7 +909,10 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     yajlData->interp = interp;
     yajlData->genHandle = NULL;
     yajlData->parseHandle = NULL;
+    yajlData->parse2dictHandle = NULL;
+    yajlData->p2dDepth = 0;
     Tcl_DStringInit (&yajlData->dString);
+    Tcl_DStringInit (&yajlData->p2dString);
 
     // process the remaining arguments as key-value pairs
     for (i = 3; i < objc; i += 2) {
@@ -811,7 +964,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     }
 
     yajltcl_recreate_generator (yajlData);
-    yajltcl_recreate_parser (yajlData);
+    yajltcl_recreate_parsers (yajlData);
 
     commandName = Tcl_GetString (objv[2]);
 
