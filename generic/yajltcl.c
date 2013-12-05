@@ -62,11 +62,7 @@ boolean_callback (void *context, int boolean)
  * note that for newer yajl it's a long but for older, a long long
  */
 static int
-#if (YAJL_MAJOR >= 2)
 integer_callback (void *context, long long integerVal)
-#else
-integer_callback (void *context, long integerVal)
-#endif
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
@@ -91,11 +87,7 @@ double_callback (void *context, double doubleVal)
  * kind or another
  */
 static int
-#if (YAJL_MAJOR >= 2)
 number_callback (void *context, const char *s, size_t l)
-#else
-number_callback (void *context, const char *s, unsigned int l)
-#endif
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
@@ -107,11 +99,7 @@ number_callback (void *context, const char *s, unsigned int l)
  * on the result object followed by the passed-in string
  */
 static int
-#if (YAJL_MAJOR >= 2)
 string_callback (void *context, const unsigned char *stringVal, size_t stringLen)
-#else
-string_callback (void *context, const unsigned char *stringVal, unsigned int stringLen)
-#endif
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
@@ -123,11 +111,7 @@ string_callback (void *context, const unsigned char *stringVal, unsigned int str
  * on the result object followed by the passed-in string
  */
 static int
-#if (YAJL_MAJOR >= 2)
 map_key_callback (void *context, const unsigned char *stringVal, size_t stringLen)
-#else
-map_key_callback (void *context, const unsigned char *stringVal, unsigned int stringLen)
-#endif
 {
     Tcl_Interp *interp = (Tcl_Interp *)context;
 
@@ -242,13 +226,9 @@ yajltcl_recreate_parser (yajltcl_clientData *yajlData)
 {
     yajltcl_free_parser (yajlData);
 
-#if (YAJL_MAJOR >= 2)
     yajlData->parseHandle = yajl_alloc (&callbacks, NULL, yajlData->interp);
     yajl_config(yajlData->parseHandle, yajl_allow_comments, yajlData->parseConfig.allowComments);
     yajl_config(yajlData->parseHandle, yajl_dont_validate_strings, !yajlData->parseConfig.checkUTF8);
-#else
-    yajlData->parseHandle = yajl_alloc (&callbacks, &yajlData->parseConfig, NULL, yajlData->interp);
-#endif
 }
 
 
@@ -325,14 +305,10 @@ void
 yajltcl_recreate_generator (yajltcl_clientData *yajlData)
 {
     yajltcl_free_generator (yajlData);
-#if (YAJL_MAJOR >= 2)
     yajlData->genHandle = yajl_gen_alloc(NULL);
     yajl_gen_config(yajlData->genHandle, yajl_gen_print_callback, yajltcl_print_callback, yajlData);
     yajl_gen_config(yajlData->genHandle, yajl_gen_beautify, yajlData->genConfig.beautify);
     yajl_gen_config(yajlData->genHandle, yajl_gen_indent_string, yajlData->genConfig.indentString);
-#else
-    yajlData->genHandle = yajl_gen_alloc2 (yajltcl_print_callback, &yajlData->genConfig, NULL, yajlData);
-#endif
 }
 
 
@@ -619,11 +595,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
 	  // parse_complete? mark that the parse is complete
           case OPT_PARSE_COMPLETE: {
-#if (YAJL_MAJOR >= 2)
               yajl_complete_parse (yajlData->parseHandle);
-#else
-              yajl_parse_complete (yajlData->parseHandle);
-#endif
               break;
           }
 
@@ -676,13 +648,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               break;
           }
 
-#if (YAJL_MAJOR >= 2)
           case yajl_gen_invalid_string: {
 	      // invalid string error
               errString = "invalid string";
               break;
           }
-#endif
         }
 
         if (pstatus != yajl_status_ok) {
