@@ -8,133 +8,6 @@ package require yajltcl
 
 namespace eval ::yajl {
 
-# internal helper method used by json2dict
-proc yajl_array_to_list {_yajl _index yajlLength} {
-	upvar $_yajl yajl
-	upvar $_index index
-
-	set result {}
-	while {$index < $yajlLength} {
-		set first [lindex $yajl $index]
-		incr index
-		switch -exact $first {
-			"array_close" {
-				return $result
-			}
-			"integer" -
-			"bool" -
-			"double" -
-			"number" -
-			"string" {
-				set val [lindex $yajl $index]
-				incr index
-				lappend result $val
-			}
-			"null" {
-				lappend result "null"
-			}
-			"array_open" {
-				# nested array
-				lappend result [yajl_array_to_list yajl index $yajlLength]
-			}
-			"map_open" {
-				# nested map
-				lappend result [yajl_map_to_list yajl index $yajlLength]
-			}
-			default {
-				error "unexpected yajl tag: $first"
-			}
-		}
-	}
-	error "reached end of yajl without finding array_close"
-}
-
-# internal helper method used by json2dict
-proc yajl_map_to_list {_yajl _index yajlLength} {
-	upvar $_yajl yajl
-	upvar $_index index
-
-	set result {}
-	while {$index < $yajlLength} {
-		set first [lindex $yajl $index]
-		incr index
-		switch -exact $first {
-			"map_close" {
-				if {[llength $result] % 2 != 0} {
-					error "yajl map was not an even number of elements"
-				}
-				return $result
-			}
-			"map_key" -
-			"integer" -
-			"bool" -
-			"double" -
-			"number" -
-			"string" {
-				set val [lindex $yajl $index]
-				incr index
-				lappend result $val
-			}
-			"null" {
-				lappend result "null"
-			}
-			"array_open" {
-				# nested array
-				lappend result [yajl_array_to_list yajl index $yajlLength]
-			}
-			"map_open" {
-				# nested map
-				lappend result [yajl_map_to_list yajl index $yajlLength]
-			}
-			default {
-				error "unexpected yajl tag: $first"
-			}
-		}
-	}
-	error "reached end of yajl without finding map_close"
-}
-
-# internal helper method used by json2dict
-proc yajl_atom_to_list {_yajl _index yajlLength} {
-	upvar $_yajl yajl
-	upvar $_index index
-
-	set result {}
-	set level 0
-	
-	if {$index < $yajlLength} {
-		set first [lindex $yajl $index]
-		incr index
-		switch -exact $first {
-			"integer" -
-			"bool" -
-			"double" -
-			"number" -
-			"string" {
-				set val [lindex $yajl $index]
-				incr index
-				lappend result $val
-			}
-			"null" {
-				lappend result "null"
-			}
-			"map_open" {
-				lappend result [yajl_map_to_list yajl index $yajlLength]
-			}
-			"array_open" {
-				lappend result [yajl_array_to_list yajl index $yajlLength]
-			}
-			default {
-				error "unexpected yajl tag: $first"
-			}
-		}
-		if {$index < $yajlLength} {
-			error "leftover yajl tags: [lrange $yajl $index end]"
-		}
-	}
-
-	return $result
-}
 
 #
 # json2dict - parse json and return a key-value list suitable for
@@ -144,11 +17,9 @@ proc yajl_atom_to_list {_yajl _index yajlLength} {
 #
 proc json2dict {jsonText} {
 	set obj [yajl create #auto]
-	set yajl [$obj parse $jsonText]
-	set index 0
-	set result [yajl_atom_to_list yajl index [llength $yajl]]
+	set result [$obj parse2dict $jsonText]
 	$obj delete
-	return {*}$result
+	return $result
 }
 
 

@@ -1,6 +1,7 @@
 
 2013-12-05 karl
     * Add "parse2dict" method to created yajltcl objects. Version bump to 1.5.
+    * Switch ::yajl::json2dict to internally use parse2dict method
 
 2013-11-08 bovine
     * Update and tag for 1.4 release
