@@ -13,10 +13,10 @@
  * of the contents of the type string followed by the passed-in Tcl objuect
  */
 static int
-append_result_list (Tcl_Interp *interp, char *type, Tcl_Obj *object)
+append_result_list (Tcl_Interp *interp, const char *type, int len, Tcl_Obj *object)
 {
     Tcl_Obj *resultObj = Tcl_GetObjResult (interp);
-    Tcl_ListObjAppendElement (interp, resultObj, Tcl_NewStringObj (type, -1));
+    Tcl_ListObjAppendElement (interp, resultObj, Tcl_NewStringObj (type, len));
     Tcl_ListObjAppendElement (interp, resultObj, object);
 
     return 1;
@@ -26,9 +26,9 @@ append_result_list (Tcl_Interp *interp, char *type, Tcl_Obj *object)
  * on the result object
  */
 static int
-append_string (Tcl_Interp *interp, char *string)
+append_string (Tcl_Interp *interp, const char *string, int len)
 {
-    Tcl_ListObjAppendElement (interp, Tcl_GetObjResult (interp), Tcl_NewStringObj (string, -1));
+    Tcl_ListObjAppendElement (interp, Tcl_GetObjResult (interp), Tcl_NewStringObj (string, len));
     return 1;
 }
 
@@ -38,11 +38,12 @@ append_string (Tcl_Interp *interp, char *string)
 static int
 null_callback (void *context)
 {
+    static const char nullStr[] = "null";
     //yajltcl_clientData *yajlData = (yajltcl_clientData *)context;
     yajltcl_clientData *yajlData = context;
     Tcl_Interp *interp = yajlData->interp;
 
-    append_string (interp, "null");
+    append_string (interp, nullStr, sizeof nullStr - 1);
     return 1;
 }
 
@@ -52,10 +53,11 @@ null_callback (void *context)
 static int
 boolean_callback (void *context, int boolean)
 {
+    static const char boolStr[] = "bool";
     yajltcl_clientData *yajlData = context;
     Tcl_Interp *interp = yajlData->interp;
 
-    append_result_list (interp, "bool", Tcl_NewBooleanObj(boolean));
+    append_result_list (interp, boolStr, sizeof boolStr - 1, Tcl_NewBooleanObj(boolean));
     return 1;
 }
 
@@ -67,10 +69,11 @@ boolean_callback (void *context, int boolean)
 static int
 integer_callback (void *context, long long integerVal)
 {
+    static const char integerStr[] = "integer";
     yajltcl_clientData *yajlData = context;
     Tcl_Interp *interp = yajlData->interp;
 
-    append_result_list (interp, "integer", Tcl_NewLongObj(integerVal));
+    append_result_list (interp, integerStr, sizeof integerStr - 1, Tcl_NewLongObj(integerVal));
     return 1;
 }
 
@@ -80,10 +83,11 @@ integer_callback (void *context, long long integerVal)
 static int
 double_callback (void *context, double doubleVal)
 {
+    static const char doubleStr[] = "double";
     yajltcl_clientData *yajlData = context;
     Tcl_Interp *interp = yajlData->interp;
 
-    append_result_list (interp, "double", Tcl_NewDoubleObj(doubleVal));
+    append_result_list (interp, doubleStr, sizeof doubleStr - 1, Tcl_NewDoubleObj(doubleVal));
     return 1;
 }
 
@@ -94,10 +98,11 @@ double_callback (void *context, double doubleVal)
 static int
 number_callback (void *context, const char *s, size_t l)
 {
+    static const char numberStr[] = "number";
     yajltcl_clientData *yajlData = context;
     Tcl_Interp *interp = yajlData->interp;
 
-    append_result_list (interp, "number", Tcl_NewStringObj(s, l));
+    append_result_list (interp, numberStr, sizeof numberStr - 1, Tcl_NewStringObj(s, l));
     return 1;
 }
 
@@ -107,10 +112,11 @@ number_callback (void *context, const char *s, size_t l)
 static int
 string_callback (void *context, const unsigned char *stringVal, size_t stringLen)
 {
+    static const char stringStr[] = "string";
     yajltcl_clientData *yajlData = context;
     Tcl_Interp *interp = yajlData->interp;
 
-    append_result_list (interp, "string", Tcl_NewStringObj((char *)stringVal, stringLen));
+    append_result_list (interp, stringStr, sizeof stringStr - 1, Tcl_NewStringObj((char *)stringVal, stringLen));
     return 1;
 }
 
@@ -120,10 +126,11 @@ string_callback (void *context, const unsigned char *stringVal, size_t stringLen
 static int
 map_key_callback (void *context, const unsigned char *stringVal, size_t stringLen)
 {
+    static const char mapKeyStr[] = "map_key";
     yajltcl_clientData *yajlData = context;
     Tcl_Interp *interp = yajlData->interp;
 
-    append_result_list (interp, "map_key", Tcl_NewStringObj((char *)stringVal, stringLen));
+    append_result_list (interp, mapKeyStr, sizeof mapKeyStr - 1, Tcl_NewStringObj((char *)stringVal, stringLen));
     return 1;
 }
 
@@ -133,10 +140,11 @@ map_key_callback (void *context, const unsigned char *stringVal, size_t stringLe
 static int
 map_start_callback (void *context)
 {
+    static const char mapOpenStr[] = "map_open";
     yajltcl_clientData *yajlData = context;
     Tcl_Interp *interp = yajlData->interp;
 
-    append_string (interp, "map_open");
+    append_string (interp, mapOpenStr, sizeof mapOpenStr - 1);
     return 1;
 }
 
@@ -146,10 +154,11 @@ map_start_callback (void *context)
 static int
 map_end_callback (void *context)
 {
+    static const char mapCloseStr[] = "map_close";
     yajltcl_clientData *yajlData = context;
     Tcl_Interp *interp = yajlData->interp;
 
-    append_string (interp, "map_close");
+    append_string (interp, mapCloseStr, sizeof mapCloseStr - 1);
     return 1;
 }
 
@@ -159,10 +168,11 @@ map_end_callback (void *context)
 static int
 array_start_callback (void *context)
 {
+    static const char arrayOpenStr[] = "array_open";
     yajltcl_clientData *yajlData = context;
     Tcl_Interp *interp = yajlData->interp;
 
-    append_string (interp, "array_open");
+    append_string (interp, arrayOpenStr, sizeof arrayOpenStr - 1);
     return 1;
 }
 
@@ -172,10 +182,11 @@ array_start_callback (void *context)
 static int
 array_end_callback (void *context)
 {
+    static const char arrayCloseStr[] = "array_close";
     yajltcl_clientData *yajlData = context;
     Tcl_Interp *interp = yajlData->interp;
 
-    append_string (interp, "array_close");
+    append_string (interp, arrayCloseStr, sizeof arrayCloseStr - 1);
     return 1;
 }
 
