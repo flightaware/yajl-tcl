@@ -15,8 +15,8 @@ namespace eval ::yajl {
 # format to parse than the direct output of the "get" method.
 # (inspired and named after the tcllib proc ::json::json2dict)
 #
-proc json2dict {jsonText} {
-	set obj [yajl create #auto]
+proc json2dict {jsonText args} {
+	set obj [yajl create #auto {*}$args]
 	set result [$obj parse2dict $jsonText]
 	$obj delete
 	return $result
