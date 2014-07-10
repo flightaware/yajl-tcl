@@ -185,4 +185,10 @@ TEA_PROG_TCLSH
 # which require substituting th AC variables in.  Include these here.
 #--------------------------------------------------------------------
 
+#--------------------------------------------------------------------
+# Locate yajl using pkg-config.
+#--------------------------------------------------------------------
+PKG_CHECK_MODULES([YAJL], [yajl >= 2.0], [],
+    [AC_MSG_ERROR([Cannot find yajl])])
+
 AC_OUTPUT([Makefile pkgIndex.tcl])

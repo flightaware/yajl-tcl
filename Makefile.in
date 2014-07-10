@@ -144,11 +144,14 @@ TCLSH   	= $(TCLSH_ENV) $(TCLSH_PROG)
 
 SHARED_BUILD	= @SHARED_BUILD@
 
-# NB FIX the configure script to do this the right way
-YAJLINCLUDES=-I"/usr/local/include"
-YAJLLIBS=-L"/usr/local/lib" -lyajl
+YAJL_CFLAGS 	= @YAJL_CFLAGS@
+YAJL_LIBS	= @YAJL_LIBS@
 
-INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@ $(YAJLINCLUDES)
+# yajl incorrectly specified $(prefix)/include/yajl in pkg-config. This
+# has been reported upstream as https://github.com/lloyd/yajl/pull/139.
+# Until it's fixed, we work around it and get to the parent directory.
+INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@ $(YAJL_CFLAGS) $(YAJL_CFLAGS)/..
+
 #INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@ @TK_INCLUDES@ @TK_XINCLUDES@
 
 PKG_CFLAGS	= @PKG_CFLAGS@
@@ -166,7 +169,7 @@ CONFIG_CLEAN_FILES = Makefile pkgIndex.tcl
 CLEANFILES	= @CLEANFILES@
 
 CPPFLAGS	= @CPPFLAGS@
-LIBS		= $(YAJLLIBS) @PKG_LIBS@ @LIBS@
+LIBS		= $(YAJL_LIBS) @PKG_LIBS@ @LIBS@
 AR		= @AR@
 CFLAGS		= @CFLAGS@
 COMPILE		= $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
