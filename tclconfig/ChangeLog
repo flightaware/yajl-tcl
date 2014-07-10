@@ -1,12 +1,48 @@
-2010-08-11  Jeff Hobbs  <jeffh@ActiveState.com>
+2010-08-16  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	*** Bump to TEA_VERSION 3.9 ***
+	If upgrading from TEA_VERSION 3.8, copy over tcl.m4, change
+	TEA_INIT to use 3.9 and reconfigure (ac-2.59+).
+	BUILD_${PACKAGE_NAME} will be auto-defined on Windows for
+	correct setting of TCL_STORAGE_CLASS.
+	TEA_LOAD_CONFIG users should remove the SHLIB_LD_LIBS setting done
+	in configure.in (LIBS will be automagically populated by
+	TEA_LOAD_CONFIG).
+	TEA_EXPORT_CONFIG has been added for ${pkg}Config.sh creators
+	SHLIB_LD_FLAGS was deprecated a while ago, remove it if it is
+	still in your Makefile.in.
+
+	* tcl.m4: add /usr/lib64 to set of auto-search dirs. [Bug 1230554]
+	Auto-define BUILD_$PACKAGE_NAME so users don't need to.  This
+	needs to correspond with $pkg.h define magic for TCL_STORAGE_CLASS.
+	Auto-define CLEANFILES.  Users can expand it.
+	(SHLIB_LD_LIBS): define to '${LIBS}' default and change it only if
+	necessary.  Platforms not using this may simply not work or have
+	very funky linkers.
+	(TEA_LOAD_CONFIG): When loading config for another extension,
+	auto-add stub libraries found with TEA_ADD_LIBS.  Eases
+	configure.in for modules like itk and img::*.
+	(TEA_EXPORT_CONFIG): Add standardized function for exporting a
+	${pkg}Config.sh.  See use by img::* and itcl.
+
+2010-08-12  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	*** Bump to TEA_VERSION 3.8 ***
 	If upgrading from TEA_VERSION 3.7, copy over tcl.m4, change
 	TEA_INIT to use 3.8 and reconfigure (ac-2.59+).
 	No other changes should be necessary.
 
+	* tcl.m4: remove more vestigial bits from removed platforms.
+	Add back SCO_SV-3.2*.
+	Remove use of DL_LIBS and DL_OBJS and related baggage - these are
+	only needed by the core to support 'load'.
+	Allow for macosx in TEA_ADD_SOURCES.
+	Correct check for found_xincludes=no in TEA_PATH_UNIX_X.
+
+2010-08-11  Jeff Hobbs  <jeffh@ActiveState.com>
+
 	* tcl.m4: remove the following old platform configurations:
-	UNIX_SV*|UnixWare-5*, SunOS-4.*, SINIX*5.4*, SCO_SV-3.2*,
+	UNIX_SV*|UnixWare-5*, SunOS-4.*, SINIX*5.4*, SCO_SV-3.2*<readded>,
 	OSF1-1.*, NEXTSTEP-*, NetBSD-1.*|FreeBSD-[[1-2]].*, MP-RAS-*,
 	IRIX-5.*, HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*, dgux*,
 	BSD/OS-2.1*|BSD/OS-3*
