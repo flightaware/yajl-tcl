@@ -297,17 +297,17 @@ static yajl_callbacks parse2dict_callbacks = {
 
 // }}}
 
-/* {{{ parse2dict_null_callback - append a null element to the dynamic string */
+/* {{{ parse2huddle_null_callback - append a null element to the dynamic string */
 static int
 parse2huddle_null_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    Tcl_DStringAppendElement (&yajlData->p2dString, "s {}");
+    Tcl_DStringAppendElement (&yajlData->p2dString, "s null");
     return 1;
 }
 
-/* parse2dict_boolean_callback - append a boolean element to the dynamic string
+/* parse2huddle_boolean_callback - append a boolean element to the dynamic string
  */
 static int
 parse2huddle_boolean_callback (void *context, int boolean)
@@ -318,7 +318,7 @@ parse2huddle_boolean_callback (void *context, int boolean)
     return 1;
 }
 
-/* parse2dict_number_callback - append a number element to the dynamic string
+/* parse2huddle_number_callback - append a number element to the dynamic string
  */
 static int
 parse2huddle_number_callback (void *context, const char *s, size_t l)
@@ -334,7 +334,7 @@ parse2huddle_number_callback (void *context, const char *s, size_t l)
     return 1;
 }
 
-/* parse2dict_string_callback - append a element to the dynamic string
+/* parse2huddle_string_callback - append a element to the dynamic string
  */
 static int
 parse2huddle_string_callback (void *context, const unsigned char *stringVal, size_t stringLen)
@@ -350,7 +350,7 @@ parse2huddle_string_callback (void *context, const unsigned char *stringVal, siz
     return 1;
 }
 
-/* parse2dict_start_map_callback - start a map */
+/* parse2huddle_start_map_callback - start a map */
 static int
 parse2huddle_start_map_callback (void *context)
 {
@@ -367,7 +367,7 @@ parse2huddle_start_map_callback (void *context)
     return 1;
 }
 
-/* parse2dict_string_callback - append a element to the dynamic string
+/* parse2huddle_string_callback - append a element to the dynamic string
  */
 static int
 parse2huddle_map_key_callback (void *context, const unsigned char *stringVal, size_t stringLen)
@@ -381,23 +381,18 @@ parse2huddle_map_key_callback (void *context, const unsigned char *stringVal, si
     return 1;
 }
 
-/* parse2dict_end_map_callback - finish a map
+/* parse2huddle_end_map_callback - finish a map
  */
 static int
 parse2huddle_end_map_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    Tcl_DStringAppend (&yajlData->p2dString, "}}",-1);
-    /*
-    if (--yajlData->p2dDepth > 0) {
-	Tcl_DStringEndSublist (&yajlData->p2dString);
-    }
-    */
+    Tcl_DStringAppend (&yajlData->p2dString, "}}",2);
     return 1;
 }
 
-/* parse2dict_start_map_callback - start an array */
+/* parse2huddle_start_map_callback - start an array */
 static int
 parse2huddle_start_array_callback (void *context)
 {
@@ -405,26 +400,16 @@ parse2huddle_start_array_callback (void *context)
 
     // start a sublist unless we're at the top level
     //Tcl_DStringAppendElement (&yajlData->p2dString, "{L {");
-    Tcl_DStringAppend (&yajlData->p2dString, "{L {",-1);
-    /*
-    if (yajlData->p2dDepth++ > 0) {
-	Tcl_DStringStartSublist (&yajlData->p2dString);
-    }
-    */
+    Tcl_DStringAppend (&yajlData->p2dString, "{L {",4);
     return 1;
 }
-/* parse2dict_end_array_callback - end an array */
+/* parse2huddle_end_array_callback - end an array */
 static int
 parse2huddle_end_array_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    Tcl_DStringAppend (&yajlData->p2dString, "}}",-1);
-    /*
-    if (--yajlData->p2dDepth > 0) {
-	Tcl_DStringEndSublist (&yajlData->p2dString);
-    }
-    */
+    Tcl_DStringAppend (&yajlData->p2dString, "}}",2);
     return 1;
 }
 
