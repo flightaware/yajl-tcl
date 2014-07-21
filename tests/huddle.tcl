@@ -1,8 +1,6 @@
 #!/usr/bin/tclsh8.5
 
-load ../libyajltcl1.5.so
-source ../yajl.tcl
-
+package require yajltcl
 package require json
 package require huddle
 
