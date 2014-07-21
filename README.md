@@ -2,7 +2,7 @@
 
 *Version 1.6*
 
-This package is a freely available open source package under the "Berkeley" license, same as Tcl.  You can do virtually anything you like with it, such as modifying it, redistributing it, and selling it either in whole or in part. See the file "license.terms" for complete information.
+This package is a freely available open source package under the "Berkeley" license, same as Tcl.  You can do virtually anything you like with it, such as modifying it, redistributing it, and selling it either in whole or in part. See the file "LICENSE" for complete information.
 
 yajl-tcl was written by Karl Lehenbauer of FlightAware.  This company-funded work was generously open-sourced.
 
