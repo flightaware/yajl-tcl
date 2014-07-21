@@ -1,3 +1,7 @@
+2014-07-21 gonwalf
+    * json2huddle parser
+    * Increment to 1.6
+
 2014-07-08 gahr
     * Allow extra constructor parameters to be passed to json2dict.
     * Update TEA and update pkg-config to match yajl's CFLAGS/LIBS
