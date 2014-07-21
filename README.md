@@ -283,15 +283,39 @@ Building
 Unix
 ----------
 
-Building under most UNIX systems is easy, just run the configure script
-and then run make. 
+Building under most UNIX systems is easy, just run the configure script and then run make.
+You will need to have the yajl library itself already installed, since it is not included with yajl-tcl.
+In some cases, you may also need to specify where your Tcl library directory is located.
 
 ```bash
 $ cd yajl-tcl
 $ ./configure
 $ make
-$ make install
+$ sudo make install
 ```
+
+
+FreeBSD
+----------
+```bash
+$ sudo portinstall devel/yajl
+$ cd yajl-tcl
+$ ./configure --with-tcl=/usr/local/lib/tcl8.5
+$ make
+$ sudo make install
+```
+
+
+Debian/Raspbian
+----------
+```bash
+$ sudo apt-get install libyajl-dev
+$ cd yajl-tcl
+$ ./configure --with-tcl=/usr/lib/tcl8.5
+$ make
+$ sudo make install
+```
+
 
 Windows
 ----------
