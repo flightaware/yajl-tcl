@@ -176,6 +176,50 @@ innerType = Feature, geom = type Point coordinates {-106.6091944 35.0401944}
 innerType = Feature, geom = type Point coordinates {-118.3586667 34.206667}
 ```
 
+Parsing to huddle
+=================
+
+You can use ```::yajl::json2huddle``` to turn JSON into a huddle string. Let's use the
+json from the prior examples:
+
+```tcl
+set myhuddle [::yajl::json2huddle $json]
+huddle set myhuddle features 0 geometry coordinates 0 -99.9999
+puts [huddle jsondump $myhuddle]
+```
+
+That will output the following:
+
+```javascript
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.9999,
+          35.0401944
+        ]
+      },
+      "properties": {"label": "KABQ"}
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.3586667,
+          34.206667
+        ]
+      },
+      "properties": {"label": "KBUR"}
+    }
+  ]
+}
+```
+
 Yajl Library Routines
 =====================
 

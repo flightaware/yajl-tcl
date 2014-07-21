@@ -40,6 +40,9 @@ proc dotest {json} {
 #set aa [huddle create 123 577 3453]
 #set aa [huddle create a b c d]
 #set aa [huddle create a 123 b 123 c 12 ]
+
+
+
 puts "--------------"
 set aa [huddle list 123 123 12 ]
 puts $aa

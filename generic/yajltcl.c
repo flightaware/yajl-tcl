@@ -356,14 +356,7 @@ parse2huddle_start_map_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    // start a sublist unless we're at the top level
-    //Tcl_DStringAppendElement (&yajlData->p2dString, "{L {");
-    Tcl_DStringAppend (&yajlData->p2dString, "{D {",4);
-    /*
-    if (yajlData->p2dDepth++ > 0) {
-	Tcl_DStringStartSublist (&yajlData->p2dString);
-    }
-    */
+    Tcl_DStringAppend (&yajlData->p2dString, " {D {",5);
     return 1;
 }
 
@@ -398,8 +391,6 @@ parse2huddle_start_array_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    // start a sublist unless we're at the top level
-    //Tcl_DStringAppendElement (&yajlData->p2dString, "{L {");
     Tcl_DStringAppend (&yajlData->p2dString, "{L {",4);
     return 1;
 }
