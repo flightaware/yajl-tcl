@@ -10,7 +10,7 @@
 /* PARSER STUFF */
 
 /* append_result_list - append to the Tcl result object a new string object
- * of the contents of the type string followed by the passed-in Tcl objuect
+ * of the contents of the type string followed by the passed-in Tcl object
  */
 static int
 append_result_list (Tcl_Interp *interp, const char *type, int len, Tcl_Obj *object)
@@ -295,6 +295,134 @@ static yajl_callbacks parse2dict_callbacks = {
     parse2dict_end_sublist_callback
 };
 
+// }}}
+
+/* {{{ parse2huddle_null_callback - append a null element to the dynamic string */
+static int
+parse2huddle_null_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringAppendElement (&yajlData->p2dString, "s null");
+    return 1;
+}
+
+/* parse2huddle_boolean_callback - append a boolean element to the dynamic string
+ */
+static int
+parse2huddle_boolean_callback (void *context, int boolean)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringAppendElement (&yajlData->p2dString, boolean ? "1" : "0");
+    return 1;
+}
+
+/* parse2huddle_number_callback - append a number element to the dynamic string
+ */
+static int
+parse2huddle_number_callback (void *context, const char *s, size_t l)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringAppend (&yajlData->p2dString, "{s ",3);
+
+    Tcl_DStringSetLength (&yajlData->dString, 0);
+    Tcl_DStringAppend (&yajlData->dString, s, l);
+    Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
+    Tcl_DStringAppend (&yajlData->p2dString, "} ",2);
+    return 1;
+}
+
+/* parse2huddle_string_callback - append a element to the dynamic string
+ */
+static int
+parse2huddle_string_callback (void *context, const unsigned char *stringVal, size_t stringLen)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringAppend (&yajlData->p2dString, "{s ",3);
+
+    Tcl_DStringSetLength (&yajlData->dString, 0);
+    Tcl_DStringAppend (&yajlData->dString, (const char *)stringVal, stringLen);
+    Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
+    Tcl_DStringAppend (&yajlData->p2dString, "} ",2);
+    return 1;
+}
+
+/* parse2huddle_start_map_callback - start a map */
+static int
+parse2huddle_start_map_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringAppend (&yajlData->p2dString, " {D {",5);
+    return 1;
+}
+
+/* parse2huddle_string_callback - append a element to the dynamic string
+ */
+static int
+parse2huddle_map_key_callback (void *context, const unsigned char *stringVal, size_t stringLen)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringSetLength (&yajlData->dString, 0);
+    Tcl_DStringAppend (&yajlData->dString, (const char *)stringVal, stringLen);
+    Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
+    Tcl_DStringAppend (&yajlData->p2dString, " ",1);
+    return 1;
+}
+
+/* parse2huddle_end_map_callback - finish a map
+ */
+static int
+parse2huddle_end_map_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringAppend (&yajlData->p2dString, "}}",2);
+    return 1;
+}
+
+/* parse2huddle_start_map_callback - start an array */
+static int
+parse2huddle_start_array_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringAppend (&yajlData->p2dString, "{L {",4);
+    return 1;
+}
+/* parse2huddle_end_array_callback - end an array */
+static int
+parse2huddle_end_array_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    Tcl_DStringAppend (&yajlData->p2dString, "}}",2);
+    return 1;
+}
+
+/* define the yajl callbacks table */
+static yajl_callbacks parse2huddle_callbacks = {
+    parse2huddle_null_callback,                   //   null_callback,
+    parse2huddle_boolean_callback,                //   boolean_callback,
+    NULL,                                         //   integer_callback,
+    NULL,                                         //   double_callback,
+    parse2huddle_number_callback,                 //   number_callback,
+    parse2huddle_string_callback,                 //   string_callback,
+    parse2huddle_start_map_callback,              //   map_start_callback,
+    parse2huddle_map_key_callback,                 //   map_key_callback,
+    parse2huddle_end_map_callback,                //   map_end_callback,
+    parse2huddle_start_array_callback,            //   array_start_callback,
+    parse2huddle_end_array_callback               //   array_end_callback
+};
+
+
+// }}}
+
+// {{{
 
 /*
  *--------------------------------------------------------------
@@ -321,6 +449,10 @@ yajltcl_free_parsers (yajltcl_clientData *yajlData)
 
     if (yajlData->parse2dictHandle != NULL) {
         yajl_free (yajlData->parse2dictHandle);
+    }
+
+    if (yajlData->parse2huddleHandle != NULL) {
+        yajl_free (yajlData->parse2huddleHandle);
     }
 }
 
@@ -373,6 +505,7 @@ yajltcl_recreate_parsers (yajltcl_clientData *yajlData)
 
     yajlData->parseHandle = yajltcl_make_parser (yajlData, &callbacks);
     yajlData->parse2dictHandle = yajltcl_make_parser (yajlData, &parse2dict_callbacks);
+    yajlData->parse2huddleHandle = yajltcl_make_parser (yajlData, &parse2huddle_callbacks);
 }
 
 
@@ -524,6 +657,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         "delete",
         "parse",
         "parse2dict",
+        "parse2huddle",
         "parse_complete",
         NULL
     };
@@ -547,6 +681,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         OPT_DELETE,
         OPT_PARSE,
         OPT_PARSE2DICT,
+        OPT_PARSE2HUDDLE,
         OPT_PARSE_COMPLETE
     };
 
@@ -719,6 +854,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  // parse? generate a parse of the following json text
 	  // and return
           case OPT_PARSE2DICT:
+          case OPT_PARSE2HUDDLE:
           case OPT_PARSE: {
               char *string;
               int   len;
@@ -729,10 +865,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
                   return TCL_ERROR;
               } 
 
-	      if ((enum options) optIndex == OPT_PARSE) {
-		parseHandle = yajlData->parseHandle;
-	      } else {
-		parseHandle = yajlData->parse2dictHandle;
+              switch ((enum options) optIndex) {
+          	case OPT_PARSE: 	parseHandle = yajlData->parseHandle; break;
+          	case OPT_PARSE2DICT: 	parseHandle = yajlData->parse2dictHandle; break;
+          	case OPT_PARSE2HUDDLE: 	parseHandle = yajlData->parse2huddleHandle; break;
+		default: break;	
 	      }
 
               string = Tcl_GetStringFromObj (objv[++arg], &len);
@@ -750,6 +887,10 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	      if ((enum options) optIndex == OPT_PARSE2DICT) {
 	          Tcl_DStringResult (interp, &yajlData->p2dString);
 	      }
+
+	      if ((enum options) optIndex == OPT_PARSE2HUDDLE) {
+	          Tcl_DStringResult (interp, &yajlData->p2dString);
+	      }
               break;
           }
 
@@ -757,6 +898,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
           case OPT_PARSE_COMPLETE: {
               yajl_complete_parse (yajlData->parseHandle);
               yajl_complete_parse (yajlData->parse2dictHandle);
+              yajl_complete_parse (yajlData->parse2huddleHandle);
               break;
           }
 
@@ -921,6 +1063,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     yajlData->genHandle = NULL;
     yajlData->parseHandle = NULL;
     yajlData->parse2dictHandle = NULL;
+    yajlData->parse2huddleHandle = NULL;
     yajlData->p2dDepth = 0;
     Tcl_DStringInit (&yajlData->dString);
     Tcl_DStringInit (&yajlData->p2dString);
@@ -1001,4 +1144,4 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     }
     return TCL_OK;
 }
-
+// }}}

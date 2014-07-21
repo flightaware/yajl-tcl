@@ -22,6 +22,12 @@ proc json2dict {jsonText args} {
 	return $result
 }
 
+proc json2huddle {jsonText args} {
+	set obj [yajl create #auto {*}$args]
+	set result [$obj parse2huddle $jsonText]
+	$obj delete
+	return "HUDDLE $result"
+}
 
 #
 # add_array_to_json - get the key-value pairs out of an array and add them into
