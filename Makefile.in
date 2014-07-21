@@ -242,6 +242,7 @@ install-libraries: libraries
 test: binaries libraries
 	$(TCLSH) `@CYGPATH@ $(srcdir)/tests/simple.tcl` $(TESTFLAGS)
 	$(TCLSH) `@CYGPATH@ $(srcdir)/tests/dict.tcl` $(TESTFLAGS)
+	$(TCLSH) `@CYGPATH@ $(srcdir)/tests/huddle.tcl` $(TESTFLAGS)
 
 shell: binaries libraries
 	@$(TCLSH) $(SCRIPT)
