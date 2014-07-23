@@ -879,6 +879,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
                   unsigned char *str = yajl_get_error (parseHandle, 1, (unsigned char *)string, len);
                   Tcl_ResetResult (interp);
                   Tcl_SetObjResult (interp, Tcl_NewStringObj ((char *)str, -1));
+                  yajl_free_error (parseHandle, str);
                   return TCL_ERROR;
               }
 
