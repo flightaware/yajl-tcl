@@ -257,7 +257,7 @@ Contents
 		when generating the final configure script.  See "tcl.m4"
 		below.
 
-```configure```	Generated file.  Do not edit.  This must be regenerated
+```configure```	Generated file.  Do not edit.  This must be regenerated with autoconf
 		anytime configure.in or tclconfig/tcl.m4 changes.
 
 ```configure.in```	Configure script template.  Autoconf uses this file as input
@@ -289,6 +289,7 @@ In some cases, you may also need to specify where your Tcl library directory is 
 
 ```bash
 $ cd yajl-tcl
+$ autoconf
 $ ./configure
 $ make
 $ sudo make install
@@ -297,9 +298,11 @@ $ sudo make install
 
 FreeBSD
 ----------
+
 ```bash
 $ sudo portinstall devel/yajl
 $ cd yajl-tcl
+$ autoconf
 $ ./configure --with-tcl=/usr/local/lib/tcl8.5
 $ make
 $ sudo make install
@@ -311,6 +314,7 @@ Debian/Raspbian
 ```bash
 $ sudo apt-get install libyajl-dev
 $ cd yajl-tcl
+$ autoconf
 $ ./configure --with-tcl=/usr/lib/tcl8.5
 $ make
 $ sudo make install
