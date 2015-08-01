@@ -858,7 +858,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
           case OPT_PARSE: {
               char *string;
               int   len;
-	      yajl_handle parseHandle;
+	      yajl_handle parseHandle = NULL;
 
               if (arg + 1 >= objc) {
                   Tcl_WrongNumArgs (interp, 1, objv, "parse jsonText");
