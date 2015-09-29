@@ -355,3 +355,7 @@ The main ```.so|.dll``` library file gets installed in the versioned ```PACKAGE`
 
 Yajl-tcl has not been tested with Windows so none of the above may be true.
 
+FlightAware
+---
+FlightAware has released over a dozen applications  (under the free and liberal BSD license) into the open source community. FlightAware's repositories are available on GitHub for public use, discussion, bug reports, and contribution. Read more at https://flightaware.com/about/code/
+
