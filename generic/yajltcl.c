@@ -5,6 +5,7 @@
 #include <tcl.h>
 #include "yajltcl.h"
 #include <string.h>
+#include <regex.h>
 
 
 /* PARSER STUFF */
@@ -614,6 +615,42 @@ yajltcl_yajlObjectDelete (ClientData clientData)
     ckfree(clientData);
 }
 
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * yajltcl_checkNumberFormat --
+ *
+ *    checks that the input string contains a valid number format
+ *
+ * Results:
+ *    true/error
+ *
+ *----------------------------------------------------------------------
+ */
+int
+yajltcl_checkNumberFormat(Tcl_Interp *interp, register Tcl_Obj *objPtr)
+{
+	int status;
+	regex_t re;
+	static const char *pattern = "^[0-9]*(([\\.,][0-9]{3})*)?[\\.,]?[0-9]*$";
+	const char *inputNumber = objPtr->bytes;
+
+	if (regcomp(&re, pattern, REG_EXTENDED) != 0) {
+		return TCL_ERROR;
+	}
+
+	status = regexec(&re, inputNumber, (size_t) 0, NULL, 0);
+	regfree(&re);
+	if (status != 0) {
+		Tcl_SetObjResult(interp, Tcl_NewStringObj("String is Not a Number", -1));
+		return TCL_ERROR;
+	}
+	return TCL_OK;
+
+} 
+
 
 /*
  *----------------------------------------------------------------------
@@ -824,6 +861,10 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               if (arg + 1 >= objc) {
                   Tcl_WrongNumArgs (interp, 1, objv, "number value");
                   return TCL_ERROR;
+              }
+
+              if (yajltcl_checkNumberFormat(interp, objv[arg]) != 0) {
+                return TCL_ERROR;
               }
 
               number = Tcl_GetStringFromObj (objv[++arg], &len);
