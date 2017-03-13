@@ -8,6 +8,8 @@ perl -p -i -e "s/^(AC_INIT\\(\\[[a-z_]+\\],) \\[[0-9.]+\\]/\\1 \\[$NEWVER\\]/" c
 
 perl -p -i -e "s/^(\*Version) [0-9.]+(\*)/\\1 $NEWVER\\2/" README.md
 
+perl -p -i -e "s/^(\\[manpage_begin yajl-tcl n) [0-9.]+(\\])/\\1 $NEWVER\\2/" doc/yajl-tcl.man
+
 autoreconf
 
 make distclean
