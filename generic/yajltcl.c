@@ -4,6 +4,7 @@
 
 #include <tcl.h>
 #include "yajltcl.h"
+#include "yajltcllex.h"
 #include <string.h>
 #include <regex.h>
 
@@ -634,22 +635,22 @@ yajltcl_checkNumberFormat(Tcl_Interp *interp, register Tcl_Obj *objPtr)
 {
 	int status;
 	regex_t re;
-	static const char *pattern = "^[0-9]*(([\\.,][0-9]{3})*)?[\\.,]?[0-9]*$";
+	static const char *pattern = "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?$";
 	const char *inputNumber = objPtr->bytes;
 
-	if (regcomp(&re, pattern, REG_EXTENDED) != 0) {
+	if ((status = regcomp(&re, pattern, REG_EXTENDED)) != 0) {
 		return TCL_ERROR;
 	}
 
 	status = regexec(&re, inputNumber, (size_t) 0, NULL, 0);
 	regfree(&re);
 	if (status != 0) {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj("String is Not a Number", -1));
+		Tcl_SetObjResult(interp, Tcl_NewStringObj("Input string is Not a Number", -1));
 		return TCL_ERROR;
 	}
 	return TCL_OK;
 
-} 
+}
 
 
 /*
@@ -863,14 +864,10 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
                   return TCL_ERROR;
               }
 
-              if (yajltcl_checkNumberFormat(interp, objv[arg]) != 0) {
-                return TCL_ERROR;
-              }
-
               number = Tcl_GetStringFromObj (objv[++arg], &len);
-              if (len == 0) {
-                  Tcl_AppendResult(interp, "invalid value \"", number, "\" for number", NULL);
-                  return TCL_ERROR;
+              if (!lex(number)) {
+                Tcl_AppendResult(interp, "Invalid value \"", number ,"\" for number input.", NULL);
+                return TCL_ERROR;
               }
               gstatus = yajl_gen_number (hand, number, len);
               break;
