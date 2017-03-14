@@ -6,7 +6,6 @@
 #include "yajltcl.h"
 #include "yajltcllex.h"
 #include <string.h>
-#include <regex.h>
 
 
 /* PARSER STUFF */
