@@ -828,7 +828,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               }
 
               number = Tcl_GetStringFromObj (objv[++arg], &len);
-              if (!lex(number)) {
+              if (!numberValidator(number)) {
                 Tcl_AppendResult(interp, "Invalid value \"", number ,"\" for number input.", NULL);
                 return TCL_ERROR;
               }

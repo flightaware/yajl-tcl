@@ -8,5 +8,9 @@
  * for details.
  */
 
+/*
+ * Validates that the input string is a valid number
+ */
+
 int
-lex(const char *YYCURSOR);
+numberValidator(const char *YYCURSOR);
