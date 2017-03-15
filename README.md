@@ -1,6 +1,6 @@
 ### This is yajl-tcl, a direct Tcl interface to the yajl JSON generator library.
 
-*Version 1.6.1*
+*Version 1.6.2*
 
 This package is a freely available open source package under the "Berkeley" license, same as Tcl.  You can do virtually anything you like with it, such as modifying it, redistributing it, and selling it either in whole or in part. See the file "LICENSE" for complete information.
 

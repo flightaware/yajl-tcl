@@ -4,6 +4,7 @@
 
 #include <tcl.h>
 #include "yajltcl.h"
+#include "yajltcllex.h"
 #include <string.h>
 
 
@@ -827,9 +828,9 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               }
 
               number = Tcl_GetStringFromObj (objv[++arg], &len);
-              if (len == 0) {
-                  Tcl_AppendResult(interp, "invalid value \"", number, "\" for number", NULL);
-                  return TCL_ERROR;
+              if (!numberValidator(number)) {
+                Tcl_AppendResult(interp, "Invalid value \"", number ,"\" for number input.", NULL);
+                return TCL_ERROR;
               }
               gstatus = yajl_gen_number (hand, number, len);
               break;
