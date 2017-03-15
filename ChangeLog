@@ -1,3 +1,7 @@
+2017-03-15 pm-conej
+    * yajl "number" should reject invalid arguments (#22)
+    * Increment to 1.6.2
+
 2016-06-21 bovine
     * Increment to 1.6.1
 
