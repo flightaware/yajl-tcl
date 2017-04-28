@@ -312,7 +312,7 @@ $ sudo make install
 Debian/Raspbian
 ----------
 ```bash
-$ sudo apt-get install libyajl-dev
+$ sudo apt-get install pkg-config libyajl-dev
 $ cd yajl-tcl
 $ autoconf
 $ ./configure --with-tcl=/usr/lib/tcl8.5
