@@ -869,6 +869,11 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
             if (Tcl_ListObjGetElements(interp, objv[++arg], &lines, &linesPtr) == TCL_ERROR) {
                 return TCL_ERROR;
             }
+		  
+            if (lines % 2 != 0) {
+                Tcl_SetObjResult (interp, Tcl_NewStringObj ("latlon list must have an even number of elements", -1));
+                return TCL_ERROR;
+            }
 
             for (int i=0; i<lines; i++) {
                 yajl_gen_map_open (hand);
