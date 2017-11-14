@@ -855,6 +855,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
           }
 			
 	  // convert a Tcl lat/lon list to yajl objects
+          // FlightAware internal use
           case OPT_ADD_LATLON_LIST: {
             Tcl_Obj **linesPtr;
             int lines;
