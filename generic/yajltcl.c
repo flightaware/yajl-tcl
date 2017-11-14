@@ -660,6 +660,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         "parse2dict",
         "parse2huddle",
         "parse_complete",
+	"add_latlon_list",
         NULL
     };
 
@@ -683,7 +684,8 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         OPT_PARSE,
         OPT_PARSE2DICT,
         OPT_PARSE2HUDDLE,
-        OPT_PARSE_COMPLETE
+        OPT_PARSE_COMPLETE,
+	OPT_ADD_LATLON_LIST
     };
 
     /* basic validation of command line arguments */
@@ -850,6 +852,42 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               string = Tcl_GetStringFromObj (objv[++arg], &len);
               gstatus = yajl_gen_string (hand, (unsigned char *)string, len);
               break;
+          }
+			
+	  // convert a Tcl lat/lon list to yajl objects
+          // FlightAware internal use
+          case OPT_ADD_LATLON_LIST: {
+            Tcl_Obj **linesPtr;
+            int lines;
+            char *latlon;
+            int len;
+
+            if (arg + 1 >= objc) {
+                Tcl_WrongNumArgs (interp, 1, objv, "list value");
+                return TCL_ERROR;
+            }
+
+            if (Tcl_ListObjGetElements(interp, objv[++arg], &lines, &linesPtr) == TCL_ERROR) {
+                return TCL_ERROR;
+            }
+		  
+            if (lines % 2 != 0) {
+                Tcl_SetObjResult (interp, Tcl_NewStringObj ("latlon list must have an even number of elements", -1));
+                return TCL_ERROR;
+            }
+
+            for (int i=0; i<lines; i++) {
+                yajl_gen_map_open (hand);
+                yajl_gen_string (hand, (unsigned char*)"lat", 3);
+                latlon = Tcl_GetStringFromObj (linesPtr[i], &len);
+                yajl_gen_number (hand, latlon, len);
+                yajl_gen_string (hand, (unsigned char*)"lon", 3);
+                latlon = Tcl_GetStringFromObj (linesPtr[++i], &len);
+                yajl_gen_number (hand, latlon, len);
+                gstatus = yajl_gen_map_close (hand);
+            }
+
+            break;
           }
 
 	  // parse? generate a parse of the following json text
