@@ -1,0 +1,12 @@
+language: c
+
+sudo: required
+
+before_install:
+  - apt-get install -y libyajl-dev
+  
+script:
+  - autoreconf -vi
+  - ./configure --with-tcl=/usr/lib/tclConfig.sh
+  - make
+  - sudo make install
