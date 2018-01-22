@@ -3,7 +3,8 @@ language: c
 sudo: required
 
 before_install:
-  - apt-get install -y libyajl-dev
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libyajl-dev
   
 script:
   - autoreconf -vi
