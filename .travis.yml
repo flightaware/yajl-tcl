@@ -1,26 +1,26 @@
 language: c
 
+sudo: true
+
 os:
   - linux
   - osx
-
-sudo: required
 
 compiler:
   - gcc
   - clang
 
-addons:
-  apt:
-    packages:
-      - libyajl-dev
-
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install yajl; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install tcl-tk; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libyajl-dev -y; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install tcl8.6-dev -y; fi
   
 script:
   - autoreconf -vi
-  - ./configure --with-tcl=/usr/lib/tclConfig.sh
+  - if [ -f /usr/local/lib/tcl8.6/tclConfig.sh ]; then PREFIX=/usr/local; else PREFIX=/usr; fi
+  - ./configure --with-tcl=${PREFIX}/lib/tcl8.6 --prefix=${PREFIX}
   - make
   - sudo make install
