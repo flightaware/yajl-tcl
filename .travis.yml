@@ -20,7 +20,6 @@ before_install:
   
 script:
   - autoreconf -vi
-  - if [ -f /usr/local/lib/tcl8.6/tclConfig.sh ]; then PREFIX=/usr/local; else PREFIX=/usr; fi
-  - ./configure --with-tcl=${PREFIX}/lib/tcl8.6 --prefix=${PREFIX}
+  - if [ -f /usr/local/opt/tcl-tk/lib/tclConfig.sh ]; then ./configure --with-tcl=/usr/local/opt/tcl-tk/lib --prefix=/usr/local; else ./configure; fi
   - make
   - sudo make install
