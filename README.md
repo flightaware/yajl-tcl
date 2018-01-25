@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/snoe925/yajl-tcl.svg?branch=master)](https://travis-ci.org/snoe925/yajl-tcl)
+[![Build Status](https://travis-ci.org/bovine/yajl-tcl.svg?branch=master)](https://travis-ci.org/bovine/yajl-tcl)
 
 ### This is yajl-tcl, a direct Tcl interface to the yajl JSON generator library.
 
