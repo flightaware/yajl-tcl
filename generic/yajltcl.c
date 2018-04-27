@@ -206,8 +206,9 @@ static yajl_callbacks callbacks = {
     array_end_callback
 };
 
-inline void
+static void
 parse2dict_possibly_insert_array_index (yajltcl_clientData *yajlData) {
+    // fprintf (stderr, "parse2dict_possibly_insert_array_index level %d, element value %d\n", yajlData->p2dDepth, yajlData->arrayElement[yajlData->p2dDepth]);
     if (yajlData->arrayElement[yajlData->p2dDepth] == -1) return;
 
     int elementNum = yajlData->arrayElement[yajlData->p2dDepth]++;
@@ -277,11 +278,13 @@ parse2dict_start_sublist_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
+    parse2dict_possibly_insert_array_index (yajlData);
     // start a sublist unless we're at the top level
     if (yajlData->p2dDepth++ > 0) {
-	yajlData->arrayElement[yajlData->p2dDepth] = -1;
 	Tcl_DStringStartSublist (&yajlData->p2dString);
     }
+    // fprintf (stderr, "parse2dict_start_sublist_callback level %d\n", yajlData->p2dDepth);
+    yajlData->arrayElement[yajlData->p2dDepth] = -1;
     return 1;
 }
 
@@ -292,11 +295,13 @@ parse2dict_start_array_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
+    parse2dict_possibly_insert_array_index (yajlData);
     // start a sublist unless we're at the top level
     if (yajlData->p2dDepth++ > 0) {
-	yajlData->arrayElement[yajlData->p2dDepth] = 0;
 	Tcl_DStringStartSublist (&yajlData->p2dString);
     }
+    // fprintf (stderr, "parse2dict_start_array_callback level %d\n", yajlData->p2dDepth);
+    yajlData->arrayElement[yajlData->p2dDepth] = 0;
     return 1;
 }
 
@@ -307,6 +312,7 @@ parse2dict_end_sublist_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
+    // fprintf (stderr, "parse2dict_end_sublist_callback level %d\n", yajlData->p2dDepth);
     if (--yajlData->p2dDepth > 0) {
 	Tcl_DStringEndSublist (&yajlData->p2dString);
     }
@@ -320,6 +326,7 @@ parse2dict_end_array_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
+    // fprintf (stderr, "parse2dict_end_array_callback level %d\n", yajlData->p2dDepth);
     if (--yajlData->p2dDepth > 0) {
 	Tcl_DStringEndSublist (&yajlData->p2dString);
     }
