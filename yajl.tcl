@@ -59,6 +59,23 @@ proc array_to_json {_array} {
 }
 
 #
+# json_to_array - convert json to an array,
+#   json must basically be one layer of map,
+#   like '{"type":"user_typing","channel":"C15S6609K","user":"U15S0297G"}'
+#   or if there's more json hierarchy beneath
+#   a top-level map, that's what you get as
+#   values in your array
+#
+proc json_to_array {json _array} {
+	upvar $_array array
+
+	set yajl [yajl create #auto]
+	array set array [$yajl parse2dict $json]
+	$yajl delete
+	return
+}
+
+#
 # add_pgresult_tuples_to_json - get the tuples out of a postgresql result object
 #  and generate them into a yajl object as an array of objects of key-value
 #  pairs, one object per tuple in the result
