@@ -206,6 +206,18 @@ static yajl_callbacks callbacks = {
     array_end_callback
 };
 
+inline void
+parse2dict_possibly_insert_array_index (yajltcl_clientData *yajlData) {
+    if (yajlData->arrayElement[yajlData->p2dDepth] == -1) return;
+
+    int elementNum = yajlData->arrayElement[yajlData->p2dDepth]++;
+    char str[16];
+    snprintf (str, 16, "%d", elementNum);
+    Tcl_DStringSetLength (&yajlData->dString, 0);
+    Tcl_DStringAppend (&yajlData->dString, str, -1);
+    Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
+}
+
 /* parse2dict_null_callback - append a null element to the dynamic string
  */
 static int
@@ -213,6 +225,7 @@ parse2dict_null_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
+    parse2dict_possibly_insert_array_index (yajlData);
     Tcl_DStringAppendElement (&yajlData->p2dString, "null");
     return 1;
 }
@@ -224,6 +237,7 @@ parse2dict_boolean_callback (void *context, int boolean)
 {
     yajltcl_clientData *yajlData = context;
 
+    parse2dict_possibly_insert_array_index (yajlData);
     Tcl_DStringAppendElement (&yajlData->p2dString, boolean ? "1" : "0");
     return 1;
 }
@@ -235,6 +249,7 @@ parse2dict_number_callback (void *context, const char *s, size_t l)
 {
     yajltcl_clientData *yajlData = context;
 
+    parse2dict_possibly_insert_array_index (yajlData);
     Tcl_DStringSetLength (&yajlData->dString, 0);
     Tcl_DStringAppend (&yajlData->dString, s, l);
     Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
@@ -248,6 +263,7 @@ parse2dict_string_callback (void *context, const unsigned char *stringVal, size_
 {
     yajltcl_clientData *yajlData = context;
 
+    parse2dict_possibly_insert_array_index (yajlData);
     Tcl_DStringSetLength (&yajlData->dString, 0);
     Tcl_DStringAppend (&yajlData->dString, (const char *)stringVal, stringLen);
     Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
@@ -263,6 +279,22 @@ parse2dict_start_sublist_callback (void *context)
 
     // start a sublist unless we're at the top level
     if (yajlData->p2dDepth++ > 0) {
+	yajlData->arrayElement[yajlData->p2dDepth] = -1;
+	Tcl_DStringStartSublist (&yajlData->p2dString);
+    }
+    return 1;
+}
+
+/* parse2dict_start_array_callback - start an array
+ */
+static int
+parse2dict_start_array_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    // start a sublist unless we're at the top level
+    if (yajlData->p2dDepth++ > 0) {
+	yajlData->arrayElement[yajlData->p2dDepth] = 0;
 	Tcl_DStringStartSublist (&yajlData->p2dString);
     }
     return 1;
@@ -272,6 +304,19 @@ parse2dict_start_sublist_callback (void *context)
  */
 static int
 parse2dict_end_sublist_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    if (--yajlData->p2dDepth > 0) {
+	Tcl_DStringEndSublist (&yajlData->p2dString);
+    }
+    return 1;
+}
+
+/* parse2dict_end_array_callback - finish an array
+ */
+static int
+parse2dict_end_array_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
@@ -292,8 +337,8 @@ static yajl_callbacks parse2dict_callbacks = {
     parse2dict_start_sublist_callback,
     parse2dict_string_callback,
     parse2dict_end_sublist_callback,
-    parse2dict_start_sublist_callback,
-    parse2dict_end_sublist_callback
+    parse2dict_start_array_callback,
+    parse2dict_end_array_callback
 };
 
 // }}}
@@ -1067,6 +1112,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     yajlData->parse2dictHandle = NULL;
     yajlData->parse2huddleHandle = NULL;
     yajlData->p2dDepth = 0;
+    yajlData->arrayElement[0] = -1;
     Tcl_DStringInit (&yajlData->dString);
     Tcl_DStringInit (&yajlData->p2dString);
 
@@ -1147,3 +1193,5 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     return TCL_OK;
 }
 // }}}
+//
+// # vim: set ts=8 sw=4 sts=4 noet :
