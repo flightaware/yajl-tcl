@@ -143,3 +143,5 @@ namespace eval ::yajl::test {
 		}}
 	} -result 1
 }
+
+cleanupTests

@@ -31,3 +31,4 @@ namespace eval ::yajl::test {
 }
 
 
+cleanupTests

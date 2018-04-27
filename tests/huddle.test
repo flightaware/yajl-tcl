@@ -14,9 +14,6 @@ namespace eval ::yajl::test {
 		set yajlstr [$json_obj parse $json]
 		$json_obj delete
 
-		# TODO: this next line is just a hack because the conversion to huddle is lossy with number types?
-		set yajlstr [string map {number string} $yajlstr]
-		
 		set huddle [::yajl::json2huddle $json]
 		if {![huddle isHuddle $huddle]} {
 			puts " *** ERROR: isHuddle failed ***"
@@ -28,6 +25,10 @@ namespace eval ::yajl::test {
 		set json_obj [yajl create #auto -beautify 0]
 		set yajlstr2 [$json_obj parse $json]
 		$json_obj delete
+
+		# TODO: test next 2 lines are just a hack because the conversion to huddle is lossy with number types?
+		set yajlstr [string map {number string} $yajlstr]
+		set yajlstr2 [string map {number string} $yajlstr2]
 		
 		if {$yajlstr2 != $yajlstr} {
 			puts "YAJL:\t\t$yajlstr"
@@ -154,3 +155,5 @@ namespace eval ::yajl::test {
 	} -result 1
 
 }
+
+cleanupTests
