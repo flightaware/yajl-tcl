@@ -1,4 +1,4 @@
-[manpage_begin yajl-tcl n 1.0]
+[manpage_begin yajl-tcl n 1.7.0]
 [moddesc   {Tcl bindings for Yet Another JSON Library (YAJL)}]
 [copyright {2010 FlightAware LLC (BSD License)}]
 [titledesc {Tcl bindings for Yet Another JSON Library (YAJL)}]
