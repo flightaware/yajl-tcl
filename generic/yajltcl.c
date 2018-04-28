@@ -206,19 +206,6 @@ static yajl_callbacks callbacks = {
     array_end_callback
 };
 
-static void
-parse2dict_possibly_insert_array_index (yajltcl_clientData *yajlData) {
-    // fprintf (stderr, "parse2dict_possibly_insert_array_index level %d, element value %d\n", yajlData->p2dDepth, yajlData->arrayElement[yajlData->p2dDepth]);
-    if (yajlData->arrayElement[yajlData->p2dDepth] == -1) return;
-
-    int elementNum = yajlData->arrayElement[yajlData->p2dDepth]++;
-    char str[16];
-    snprintf (str, 16, "%d", elementNum);
-    Tcl_DStringSetLength (&yajlData->dString, 0);
-    Tcl_DStringAppend (&yajlData->dString, str, -1);
-    Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
-}
-
 /* parse2dict_null_callback - append a null element to the dynamic string
  */
 static int
@@ -226,7 +213,6 @@ parse2dict_null_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    parse2dict_possibly_insert_array_index (yajlData);
     Tcl_DStringAppendElement (&yajlData->p2dString, "null");
     return 1;
 }
@@ -238,7 +224,6 @@ parse2dict_boolean_callback (void *context, int boolean)
 {
     yajltcl_clientData *yajlData = context;
 
-    parse2dict_possibly_insert_array_index (yajlData);
     Tcl_DStringAppendElement (&yajlData->p2dString, boolean ? "1" : "0");
     return 1;
 }
@@ -250,7 +235,6 @@ parse2dict_number_callback (void *context, const char *s, size_t l)
 {
     yajltcl_clientData *yajlData = context;
 
-    parse2dict_possibly_insert_array_index (yajlData);
     Tcl_DStringSetLength (&yajlData->dString, 0);
     Tcl_DStringAppend (&yajlData->dString, s, l);
     Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
@@ -264,7 +248,6 @@ parse2dict_string_callback (void *context, const unsigned char *stringVal, size_
 {
     yajltcl_clientData *yajlData = context;
 
-    parse2dict_possibly_insert_array_index (yajlData);
     Tcl_DStringSetLength (&yajlData->dString, 0);
     Tcl_DStringAppend (&yajlData->dString, (const char *)stringVal, stringLen);
     Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
@@ -278,13 +261,10 @@ parse2dict_start_sublist_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    parse2dict_possibly_insert_array_index (yajlData);
     // start a sublist unless we're at the top level
     if (yajlData->p2dDepth++ > 0) {
 	Tcl_DStringStartSublist (&yajlData->p2dString);
     }
-    // fprintf (stderr, "parse2dict_start_sublist_callback level %d\n", yajlData->p2dDepth);
-    yajlData->arrayElement[yajlData->p2dDepth] = -1;
     return 1;
 }
 
@@ -295,13 +275,10 @@ parse2dict_start_array_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    parse2dict_possibly_insert_array_index (yajlData);
     // start a sublist unless we're at the top level
     if (yajlData->p2dDepth++ > 0) {
 	Tcl_DStringStartSublist (&yajlData->p2dString);
     }
-    // fprintf (stderr, "parse2dict_start_array_callback level %d\n", yajlData->p2dDepth);
-    yajlData->arrayElement[yajlData->p2dDepth] = 0;
     return 1;
 }
 
@@ -312,7 +289,6 @@ parse2dict_end_sublist_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    // fprintf (stderr, "parse2dict_end_sublist_callback level %d\n", yajlData->p2dDepth);
     if (--yajlData->p2dDepth > 0) {
 	Tcl_DStringEndSublist (&yajlData->p2dString);
     }
@@ -326,7 +302,6 @@ parse2dict_end_array_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    // fprintf (stderr, "parse2dict_end_array_callback level %d\n", yajlData->p2dDepth);
     if (--yajlData->p2dDepth > 0) {
 	Tcl_DStringEndSublist (&yajlData->p2dString);
     }
@@ -345,6 +320,120 @@ static yajl_callbacks parse2dict_callbacks = {
     parse2dict_string_callback,
     parse2dict_end_sublist_callback,
     parse2dict_start_array_callback,
+    parse2dict_end_array_callback
+};
+
+static void
+parse2dictex_possibly_insert_array_index (yajltcl_clientData *yajlData) {
+    // fprintf (stderr, "parse2dictex_possibly_insert_array_index level %d, element value %d\n", yajlData->p2dDepth, yajlData->arrayElement[yajlData->p2dDepth]);
+    if (yajlData->arrayElement[yajlData->p2dDepth] == -1) return;
+
+    int elementNum = yajlData->arrayElement[yajlData->p2dDepth]++;
+    char str[16];
+    snprintf (str, 16, "%d", elementNum);
+    Tcl_DStringSetLength (&yajlData->dString, 0);
+    Tcl_DStringAppend (&yajlData->dString, str, -1);
+    Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
+}
+
+/* parse2dictex_null_callback - append a null element to the dynamic string
+ */
+static int
+parse2dictex_null_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    parse2dictex_possibly_insert_array_index (yajlData);
+    Tcl_DStringAppendElement (&yajlData->p2dString, "null");
+    return 1;
+}
+
+/* parse2dictex_boolean_callback - append a boolean element to the dynamic string
+ */
+static int
+parse2dictex_boolean_callback (void *context, int boolean)
+{
+    yajltcl_clientData *yajlData = context;
+
+    parse2dictex_possibly_insert_array_index (yajlData);
+    Tcl_DStringAppendElement (&yajlData->p2dString, boolean ? "1" : "0");
+    return 1;
+}
+
+/* parse2dictex_number_callback - append a number element to the dynamic string
+ */
+static int
+parse2dictex_number_callback (void *context, const char *s, size_t l)
+{
+    yajltcl_clientData *yajlData = context;
+
+    parse2dictex_possibly_insert_array_index (yajlData);
+    Tcl_DStringSetLength (&yajlData->dString, 0);
+    Tcl_DStringAppend (&yajlData->dString, s, l);
+    Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
+    return 1;
+}
+
+/* parse2dictex_string_callback - append a element to the dynamic string
+ */
+static int
+parse2dictex_string_callback (void *context, const unsigned char *stringVal, size_t stringLen)
+{
+    yajltcl_clientData *yajlData = context;
+
+    parse2dictex_possibly_insert_array_index (yajlData);
+    Tcl_DStringSetLength (&yajlData->dString, 0);
+    Tcl_DStringAppend (&yajlData->dString, (const char *)stringVal, stringLen);
+    Tcl_DStringAppendElement (&yajlData->p2dString, Tcl_DStringValue (&yajlData->dString));
+    return 1;
+}
+
+/* parse2dictex_start_sublist_callback - start a sublist
+ */
+static int
+parse2dictex_start_sublist_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    parse2dictex_possibly_insert_array_index (yajlData);
+    // start a sublist unless we're at the top level
+    if (yajlData->p2dDepth++ > 0) {
+	Tcl_DStringStartSublist (&yajlData->p2dString);
+    }
+    // fprintf (stderr, "parse2dictex_start_sublist_callback level %d\n", yajlData->p2dDepth);
+    yajlData->arrayElement[yajlData->p2dDepth] = -1;
+    return 1;
+}
+
+/* parse2dictex_start_array_callback - start an array
+ */
+static int
+parse2dictex_start_array_callback (void *context)
+{
+    yajltcl_clientData *yajlData = context;
+
+    parse2dictex_possibly_insert_array_index (yajlData);
+    // start a sublist unless we're at the top level
+    if (yajlData->p2dDepth++ > 0) {
+	Tcl_DStringStartSublist (&yajlData->p2dString);
+    }
+    // fprintf (stderr, "parse2dictex_start_array_callback level %d\n", yajlData->p2dDepth);
+    yajlData->arrayElement[yajlData->p2dDepth] = 0;
+    return 1;
+}
+
+/* define the yajl callbacks table */
+static yajl_callbacks parse2dictex_callbacks = {
+    parse2dictex_null_callback,
+    parse2dictex_boolean_callback,
+    NULL,
+    NULL,
+    parse2dictex_number_callback,
+    parse2dictex_string_callback,
+    parse2dictex_start_sublist_callback,
+    parse2dictex_string_callback,
+    parse2dict_end_sublist_callback,
+    parse2dictex_start_array_callback,
     parse2dict_end_array_callback
 };
 
@@ -504,6 +593,10 @@ yajltcl_free_parsers (yajltcl_clientData *yajlData)
         yajl_free (yajlData->parse2dictHandle);
     }
 
+    if (yajlData->parse2dictexHandle != NULL) {
+        yajl_free (yajlData->parse2dictexHandle);
+    }
+
     if (yajlData->parse2huddleHandle != NULL) {
         yajl_free (yajlData->parse2huddleHandle);
     }
@@ -558,6 +651,7 @@ yajltcl_recreate_parsers (yajltcl_clientData *yajlData)
 
     yajlData->parseHandle = yajltcl_make_parser (yajlData, &callbacks);
     yajlData->parse2dictHandle = yajltcl_make_parser (yajlData, &parse2dict_callbacks);
+    yajlData->parse2dictexHandle = yajltcl_make_parser (yajlData, &parse2dictex_callbacks);
     yajlData->parse2huddleHandle = yajltcl_make_parser (yajlData, &parse2huddle_callbacks);
 }
 
@@ -710,6 +804,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         "delete",
         "parse",
         "parse2dict",
+        "parse2dictex",
         "parse2huddle",
         "parse_complete",
         NULL
@@ -734,6 +829,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         OPT_DELETE,
         OPT_PARSE,
         OPT_PARSE2DICT,
+        OPT_PARSE2DICTEX,
         OPT_PARSE2HUDDLE,
         OPT_PARSE_COMPLETE
     };
@@ -907,6 +1003,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  // parse? generate a parse of the following json text
 	  // and return
           case OPT_PARSE2DICT:
+          case OPT_PARSE2DICTEX:
           case OPT_PARSE2HUDDLE:
           case OPT_PARSE: {
               char *string;
@@ -921,6 +1018,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               switch ((enum options) optIndex) {
           	case OPT_PARSE: 	parseHandle = yajlData->parseHandle; break;
           	case OPT_PARSE2DICT: 	parseHandle = yajlData->parse2dictHandle; break;
+          	case OPT_PARSE2DICTEX: 	parseHandle = yajlData->parse2dictexHandle; break;
           	case OPT_PARSE2HUDDLE: 	parseHandle = yajlData->parse2huddleHandle; break;
 		default: break;	
 	      }
@@ -936,9 +1034,9 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
                   return TCL_ERROR;
               }
 
-	      // parse2dict? set the Tcl result to the dynamic string
-	      // we've been building
-	      if ((enum options) optIndex == OPT_PARSE2DICT) {
+	      // parse2dict or parse2dictex? set the Tcl result to
+	      // the dynamic string we've been building
+	      if (((enum options) optIndex == OPT_PARSE2DICT) || ((enum options) optIndex == OPT_PARSE2DICTEX)) {
 	          Tcl_DStringResult (interp, &yajlData->p2dString);
 	      }
 
@@ -952,6 +1050,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
           case OPT_PARSE_COMPLETE: {
               yajl_complete_parse (yajlData->parseHandle);
               yajl_complete_parse (yajlData->parse2dictHandle);
+              yajl_complete_parse (yajlData->parse2dictexHandle);
               yajl_complete_parse (yajlData->parse2huddleHandle);
               break;
           }
@@ -1117,6 +1216,7 @@ yajltcl_yajlObjCmd(clientData, interp, objc, objv)
     yajlData->genHandle = NULL;
     yajlData->parseHandle = NULL;
     yajlData->parse2dictHandle = NULL;
+    yajlData->parse2dictexHandle = NULL;
     yajlData->parse2huddleHandle = NULL;
     yajlData->p2dDepth = 0;
     yajlData->arrayElement[0] = -1;

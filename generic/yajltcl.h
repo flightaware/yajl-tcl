@@ -35,6 +35,7 @@ typedef struct yajltcl_clientData
 
     yajl_handle parseHandle;
     yajl_handle parse2dictHandle;
+    yajl_handle parse2dictexHandle;
     yajl_handle parse2huddleHandle;
 
     struct my_parser_config {
