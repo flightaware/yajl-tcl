@@ -22,6 +22,24 @@ proc json2dict {jsonText args} {
 	return $result
 }
 
+#
+# json2dict_ex - parse json and return a key-value list suitable for
+# loading into a dict or an array. This is usually a friendlier
+# format to parse than the direct output of the "get" method.
+# (inspired and named after the tcllib proc ::json::json2dict)
+#
+# This version enumerates all arrays as key-value pairs with the
+# array index being an incrementing integer starting from 0 for
+# the first element.
+#
+proc json2dict_ex {jsonText args} {
+	set obj [yajl create #auto {*}$args]
+	set result [$obj parse2dictex $jsonText]
+	$obj delete
+	return $result
+}
+
+
 proc json2huddle {jsonText args} {
 	set obj [yajl create #auto {*}$args]
 	set result [$obj parse2huddle $jsonText]
