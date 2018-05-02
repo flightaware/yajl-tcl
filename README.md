@@ -178,6 +178,10 @@ innerType = Feature, geom = type Point coordinates {-106.6091944 35.0401944}
 innerType = Feature, geom = type Point coordinates {-118.3586667 34.206667}
 ```
 
+A slight variation of json2dict is ```yajl::json2dict_ex```.  This version turns JSON into a fully traversable Tcl dictionary by virtue of that it expands JSON arrays into key-value pairs, as might be done with a map, where the keys are synthetized sequential integers starting from zero.
+
+After having parsed a list of channels returned from the Slack API, for instance, to fetch the ID of the third member of the fourth channel you might say ```dict get $dict channels 3 members 2```.  See the tests file json2dict_ex.test included in the distro for a nice big JSON structure that hopefully will make clear what's going on.
+
 Parsing to huddle
 =================
 
