@@ -1,0 +1,129 @@
+# -*- tcl -*-
+
+package require tcltest
+package require yajltcl
+
+
+namespace import ::tcltest::*
+
+namespace eval ::yajl::test {
+
+set json {{
+	"ok": true,
+	"channels": [
+		{
+			"id": "CXXXXXXX1",
+			"name": "channel_one",
+			"is_channel": true,
+			"created": 1460434468,
+			"is_archived": false,
+			"is_general": true,
+			"unlinked": 0,
+			"creator": "UXXXXXXX1",
+			"name_normalized": "channel_one",
+			"is_shared": false,
+			"is_org_shared": false,
+			"is_member": true,
+			"is_private": false,
+			"is_mpim": false,
+			"members": [
+				"UXXXXXXX1",
+				"UXXXXXXX2",
+				"UXXXXXXX3",
+				"UXXXXXXX4"
+			],
+			"topic": {
+				"value": "Today at ACME: Rocket-Powered Roller Skates",
+				"creator": "UXXXXXXX1",
+				"last_set": 1525189375
+			},
+			"purpose": {
+				"value": "This channel is for team-wide communication and announcements. All coyotes are in this channel.",
+				"creator": "",
+				"last_set": 0
+			},
+			"previous_names": [
+				"general"
+			],
+			"num_members": 4
+		},
+		{
+			"id": "CXXXXXXX2",
+			"name": "zombie_rockpocalypse",
+			"is_channel": true,
+			"created": 1462399235,
+			"is_archived": false,
+			"is_general": false,
+			"unlinked": 0,
+			"creator": "UXXXXXXX3",
+			"name_normalized": "zombie_rockpocalypse",
+			"is_shared": false,
+			"is_org_shared": false,
+			"is_member": true,
+			"is_private": false,
+			"is_mpim": false,
+			"members": [
+				"UXXXXXXX3",
+				"UXXXXXXX4",
+				"UXXXXXXX5",
+				"UXXXXXXX6",
+				"UXXXXXXX7"
+			],
+			"topic": {
+				"value": "On-topic conversations only, please.",
+				"creator": "UXXXXXXX4",
+				"last_set": 1479582262
+			},
+			"purpose": {
+				"value": "Survival",
+				"creator": "UXXXXXXX7",
+				"last_set": 1469283140
+			},
+			"previous_names": [
+
+			],
+			"num_members": 5
+		}
+	],
+	"response_metadata": {
+		"next_cursor": "dGVhbTpDMTY0WlJMQTI="
+	}
+}}
+
+set dict [yajl::json2dict_ex $json]
+
+	test 1.01 {: Basic output
+	} -body {
+		dict get $dict ok
+	} -result 1
+
+
+	test 1.02 {: Basic output
+	} -body {
+		dict get $dict channels 0 num_members
+	} -result 4
+
+	
+	test 1.03 {: Basic output
+	} -body {
+		dict get $dict channels 1 num_members
+	} -result 5
+
+	test 1.04 {: Basic output
+	} -body {
+		dict get $dict channels 0 previous_names 0
+	} -result general
+
+	test 1.05 {: Basic output
+	} -body {
+		dict get $dict channels 0 members 2
+	} -result UXXXXXXX3
+
+	test 1.06 {: Basic output
+	} -body {
+		dict get $dict channels 1 members 2
+	} -result UXXXXXXX5
+}
+
+cleanupTests
+
