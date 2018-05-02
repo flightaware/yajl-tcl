@@ -804,7 +804,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         "delete",
         "parse",
         "parse2dict",
-        "parse2dictex",
+        "parse2dict_ex",
         "parse2huddle",
         "parse_complete",
         NULL
@@ -829,7 +829,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
         OPT_DELETE,
         OPT_PARSE,
         OPT_PARSE2DICT,
-        OPT_PARSE2DICTEX,
+        OPT_PARSE2DICT_EX,
         OPT_PARSE2HUDDLE,
         OPT_PARSE_COMPLETE
     };
@@ -1003,7 +1003,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 	  // parse? generate a parse of the following json text
 	  // and return
           case OPT_PARSE2DICT:
-          case OPT_PARSE2DICTEX:
+          case OPT_PARSE2DICT_EX:
           case OPT_PARSE2HUDDLE:
           case OPT_PARSE: {
               char *string;
@@ -1018,7 +1018,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
               switch ((enum options) optIndex) {
           	case OPT_PARSE: 	parseHandle = yajlData->parseHandle; break;
           	case OPT_PARSE2DICT: 	parseHandle = yajlData->parse2dictHandle; break;
-          	case OPT_PARSE2DICTEX: 	parseHandle = yajlData->parse2dictexHandle; break;
+          	case OPT_PARSE2DICT_EX: parseHandle = yajlData->parse2dictexHandle; break;
           	case OPT_PARSE2HUDDLE: 	parseHandle = yajlData->parse2huddleHandle; break;
 		default: break;	
 	      }
@@ -1036,7 +1036,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
 	      // parse2dict or parse2dictex? set the Tcl result to
 	      // the dynamic string we've been building
-	      if (((enum options) optIndex == OPT_PARSE2DICT) || ((enum options) optIndex == OPT_PARSE2DICTEX)) {
+	      if (((enum options) optIndex == OPT_PARSE2DICT) || ((enum options) optIndex == OPT_PARSE2DICT_EX)) {
 	          Tcl_DStringResult (interp, &yajlData->p2dString);
 	      }
 

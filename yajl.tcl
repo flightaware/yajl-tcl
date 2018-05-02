@@ -34,7 +34,7 @@ proc json2dict {jsonText args} {
 #
 proc json2dict_ex {jsonText args} {
 	set obj [yajl create #auto {*}$args]
-	set result [$obj parse2dictex $jsonText]
+	set result [$obj parse2dict_ex $jsonText]
 	$obj delete
 	return $result
 }
