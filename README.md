@@ -2,7 +2,7 @@
 
 ### This is yajl-tcl, a direct Tcl interface to the yajl JSON generator library.
 
-*Version 1.6.2*
+*Version 1.7.0*
 
 This package is a freely available open source package under the "Berkeley" license, same as Tcl.  You can do virtually anything you like with it, such as modifying it, redistributing it, and selling it either in whole or in part. See the file "LICENSE" for complete information.
 
@@ -177,6 +177,10 @@ outerType = FeatureCollection
 innerType = Feature, geom = type Point coordinates {-106.6091944 35.0401944}
 innerType = Feature, geom = type Point coordinates {-118.3586667 34.206667}
 ```
+
+A slight variation of json2dict is ```yajl::json2dict_ex```.  This version turns JSON into a fully traversable Tcl dictionary by virtue of that it expands JSON arrays into key-value pairs, as might be done with a map, where the keys are synthetized sequential integers starting from zero.
+
+After having parsed a list of channels returned from the Slack API, for instance, to fetch the ID of the third member of the fourth channel you might say ```dict get $dict channels 3 members 2```.  See the tests file json2dict_ex.test included in the distro for a nice big JSON structure that hopefully will make clear what's going on.
 
 Parsing to huddle
 =================

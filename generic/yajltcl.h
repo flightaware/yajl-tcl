@@ -18,6 +18,8 @@
 extern int
 yajltcl_yajlObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objvp[]);
 
+#define YAJLTCL_MAX_DEPTH 100
+
 typedef struct yajltcl_clientData
 {
     Tcl_Interp *interp;
@@ -33,6 +35,7 @@ typedef struct yajltcl_clientData
 
     yajl_handle parseHandle;
     yajl_handle parse2dictHandle;
+    yajl_handle parse2dictexHandle;
     yajl_handle parse2huddleHandle;
 
     struct my_parser_config {
@@ -41,5 +44,6 @@ typedef struct yajltcl_clientData
     } parseConfig;
 
     Tcl_Command cmdToken;
+	int arrayElement[YAJLTCL_MAX_DEPTH];
 } yajltcl_clientData;
 

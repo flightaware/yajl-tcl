@@ -22,6 +22,24 @@ proc json2dict {jsonText args} {
 	return $result
 }
 
+#
+# json2dict_ex - parse json and return a key-value list suitable for
+# loading into a dict or an array. This is usually a friendlier
+# format to parse than the direct output of the "get" method.
+# (inspired and named after the tcllib proc ::json::json2dict)
+#
+# This version enumerates all arrays as key-value pairs with the
+# array index being an incrementing integer starting from 0 for
+# the first element.
+#
+proc json2dict_ex {jsonText args} {
+	set obj [yajl create #auto {*}$args]
+	set result [$obj parse2dict_ex $jsonText]
+	$obj delete
+	return $result
+}
+
+
 proc json2huddle {jsonText args} {
 	set obj [yajl create #auto {*}$args]
 	set result [$obj parse2huddle $jsonText]
@@ -56,6 +74,23 @@ proc array_to_json {_array} {
 	set result [$json get]
 	$json delete
 	return $result
+}
+
+#
+# json_to_array - convert json to an array,
+#   json must basically be one layer of map,
+#   like '{"type":"user_typing","channel":"C15S6609K","user":"U15S0297G"}'
+#   or if there's more json hierarchy beneath
+#   a top-level map, that's what you get as
+#   values in your array
+#
+proc json_to_array {json _array} {
+	upvar $_array array
+
+	set yajl [yajl create #auto]
+	array set array [$yajl parse2dict $json]
+	$yajl delete
+	return
 }
 
 #
