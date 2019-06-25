@@ -309,7 +309,7 @@ FreeBSD
 $ sudo portinstall devel/yajl
 $ cd yajl-tcl
 $ autoconf
-$ ./configure --with-tcl=/usr/local/lib/tcl8.5
+$ ./configure --with-tcl=/usr/local/lib/tcl8.6
 $ make
 $ sudo make install
 ```
@@ -321,7 +321,7 @@ Debian/Raspbian
 $ sudo apt-get install pkg-config libyajl-dev
 $ cd yajl-tcl
 $ autoconf
-$ ./configure --with-tcl=/usr/lib/tcl8.5
+$ ./configure --with-tcl=/usr/lib/tcl8.6
 $ make
 $ sudo make install
 ```
