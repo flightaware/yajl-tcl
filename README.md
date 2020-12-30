@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/flightaware/yajl-tcl.svg?branch=master)](https://travis-ci.org/flightaware/yajl-tcl)
+![Linux CI](https://github.com/flightaware/yajl-tcl/workflows/Linux%20CI/badge.svg)
 
 ### This is yajl-tcl, a direct Tcl interface to the yajl JSON generator library.
 
