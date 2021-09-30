@@ -224,7 +224,7 @@ parse2dict_boolean_callback (void *context, int boolean)
 {
     yajltcl_clientData *yajlData = context;
 
-    Tcl_DStringAppendElement (&yajlData->p2dString, boolean ? "1" : "0");
+    Tcl_DStringAppendElement (&yajlData->p2dString, boolean ? "true" : "false");
     return 1;
 }
 
