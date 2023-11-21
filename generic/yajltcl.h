@@ -8,12 +8,21 @@
  * for details.
  */
 
+#include <tcl.h>
 
 /* NB - fix the configure script */
 #include <yajl/yajl_version.h>
 #include <yajl/yajl_common.h>
 #include <yajl/yajl_gen.h>
 #include <yajl/yajl_parse.h>
+
+#if TCL_MAJOR_VERSION == 9
+#undef CONST
+#define CONST const
+#define yajltcl_size Tcl_Size
+#else
+#define yajltcl_size int
+#endif
 
 extern int
 yajltcl_yajlObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objvp[]);

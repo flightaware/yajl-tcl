@@ -1,3 +1,8 @@
+2023-11-21 mxmanghi
+    * Increment to 1.8.1 to mark changes introduced to 
+      build with Tcl 9.0
+    * Update to latest tcl.m4 version
+
 2017-03-15 pm-conej
     * yajl "number" should reject invalid arguments (#22)
     * Increment to 1.6.2
