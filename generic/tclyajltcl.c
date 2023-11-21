@@ -39,11 +39,11 @@ Yajltcl_Init(Tcl_Interp *interp)
      * This may work with 8.0, but we are using strictly stubs here,
      * which requires 8.1.
      */
-    if (Tcl_InitStubs(interp, "8.1", 0) == NULL) {
+    if (Tcl_InitStubs(interp, "8.0-", 0) == NULL) {
 	return TCL_ERROR;
     }
 
-    if (Tcl_PkgRequire(interp, "Tcl", "8.1", 0) == NULL) {
+    if (Tcl_PkgRequire(interp, "Tcl", "8.0-", 0) == NULL) {
 	return TCL_ERROR;
     }
 
@@ -83,11 +83,11 @@ Yajltcl_SafeInit(Tcl_Interp *interp)
      * This may work with 8.0, but we are using strictly stubs here,
      * which requires 8.1.
      */
-    if (Tcl_InitStubs(interp, "8.1", 0) == NULL) {
+    if (Tcl_InitStubs(interp, "8.0-", 0) == NULL) {
 	return TCL_ERROR;
     }
 
-    if (Tcl_PkgRequire(interp, "Tcl", "8.1", 0) == NULL) {
+    if (Tcl_PkgRequire(interp, "Tcl", "8.0-", 0) == NULL) {
 	return TCL_ERROR;
     }
 

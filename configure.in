@@ -18,7 +18,7 @@ dnl	to configure the system for the local environment.
 # so you can encode the package version directly into the source files.
 #-----------------------------------------------------------------------
 
-AC_INIT([yajltcl], [1.7.0])
+AC_INIT([yajltcl],[1.8.1])
 
 #--------------------------------------------------------------------
 # Call TEA_INIT as the first TEA_ macro to set up initial vars.
@@ -191,4 +191,5 @@ TEA_PROG_TCLSH
 PKG_CHECK_MODULES([YAJL], [yajl >= 2.0], [],
     [AC_MSG_ERROR([Cannot find yajl])])
 
-AC_OUTPUT([Makefile pkgIndex.tcl])
+AC_CONFIG_FILES([Makefile pkgIndex.tcl])
+AC_OUTPUT
