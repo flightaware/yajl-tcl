@@ -1,5 +1,5 @@
-![Linux CI](https://github.com/flightaware/yajl-tcl/workflows/Linux%20CI/badge.svg)
-![Mac CI](https://github.com/flightaware/yajl-tcl/workflows/Mac%20CI/badge.svg)
+[![Linux CI](https://github.com/flightaware/yajl-tcl/actions/workflows/linux-ci.yml/badge.svg)](https://github.com/flightaware/yajl-tcl/actions/workflows/linux-ci.yml)
+[![Mac CI](https://github.com/flightaware/yajl-tcl/actions/workflows/mac-ci.yml/badge.svg)](https://github.com/flightaware/yajl-tcl/actions/workflows/mac-ci.yml)
 
 ### This is yajl-tcl, a direct Tcl interface to the yajl JSON generator library.
 
