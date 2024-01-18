@@ -142,6 +142,25 @@ namespace eval ::yajl::test {
 	}
 		}}
 	} -result 1
+
+
+	test 1.08 {: boolean example from PR#39
+	} -body {
+		dotest {{
+			"valueTrue":true,
+			"valueFalse":false,
+			"x":"true",
+			"y":false,
+			"a":{
+				"b":1,
+				"c":"true",
+				"d":{
+					"p":false
+				}
+			}
+		}}
+	} -result 1
+
 }
 
 cleanupTests
