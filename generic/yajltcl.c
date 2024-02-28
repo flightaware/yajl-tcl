@@ -445,7 +445,7 @@ parse2huddle_null_callback (void *context)
 {
     yajltcl_clientData *yajlData = context;
 
-    Tcl_DStringAppendElement (&yajlData->p2dString, "s null");
+    Tcl_DStringAppendElement (&yajlData->p2dString, "null");
     return 1;
 }
 
