@@ -467,7 +467,7 @@ parse2huddle_number_callback (void *context, const char *s, size_t l)
 {
     yajltcl_clientData *yajlData = context;
 
-    Tcl_DStringAppend (&yajlData->p2dString, "{s ",3);
+    Tcl_DStringAppend (&yajlData->p2dString, "{num ", 5);
 
     Tcl_DStringSetLength (&yajlData->dString, 0);
     Tcl_DStringAppend (&yajlData->dString, s, l);
