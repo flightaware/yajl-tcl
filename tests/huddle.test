@@ -25,10 +25,6 @@ namespace eval ::yajl::test {
 		set json_obj [yajl create #auto -beautify 0]
 		set yajlstr2 [$json_obj parse $json]
 		$json_obj delete
-
-		# TODO: test next 2 lines are just a hack because the conversion to huddle is lossy with number types?
-		set yajlstr [string map {number string} $yajlstr]
-		set yajlstr2 [string map {number string} $yajlstr2]
 		
 		if {$yajlstr2 != $yajlstr} {
 			puts "YAJL:\t\t$yajlstr"
@@ -66,10 +62,10 @@ namespace eval ::yajl::test {
 	} -result 1
 
 	# TODO: this test currently fails
-	# test 1.04 {: Array with null element
-	# } -body {
-	# 	dotest {{"moo": "cow", "pig": "oink", "rabbit" : null}}
-	# } -result 1
+	test 1.04 {: Array with null element
+	} -body {
+		dotest {{"moo": "cow", "pig": "oink", "rabbit" : null}}
+	} -result 1
 
 
 	test 1.05 {: example from the yajl-tcl README file.
@@ -154,6 +150,23 @@ namespace eval ::yajl::test {
 		}}
 	} -result 1
 
+	# HUDDLE {D {A {b true}}}
+	test 1.08 {: basic types boolean
+	} -body {
+		dotest {{"key": true}}
+	} -result 1
+
+	# HUDDLE {D {A {num 42}}}
+	test 1.09 {: basic types integer
+	} -body {
+		dotest {{"key": 42}}
+	} -result 1
+
+	# HUDDLE {D {A null}}
+	test 1.11 {: basic types null
+	} -body {
+		dotest {{"key": null}}
+	} -result 1
 }
 
 cleanupTests
