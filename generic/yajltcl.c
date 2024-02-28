@@ -456,7 +456,7 @@ parse2huddle_boolean_callback (void *context, int boolean)
 {
     yajltcl_clientData *yajlData = context;
 
-    Tcl_DStringAppendElement (&yajlData->p2dString, boolean ? "1" : "0");
+    Tcl_DStringAppendElement (&yajlData->p2dString, boolean ? "b true" : "b false");
     return 1;
 }
 
