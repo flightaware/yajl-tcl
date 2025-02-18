@@ -5,6 +5,7 @@
 #include <tcl.h>
 #include "yajltcl.h"
 #include "yajltcllex.h"
+#include "config.h"
 #include <string.h>
 
 
@@ -916,18 +917,18 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
 	  // bool? generate a boolean string and value
           case OPT_BOOL: {
-              int bool;
+              int boolean;
 
               if (arg + 1 >= objc) {
                   Tcl_WrongNumArgs (interp, 1, objv, "bool value");
                   return TCL_ERROR;
               }
 
-              if (Tcl_GetBooleanFromObj (interp, objv[++arg], &bool) == TCL_ERROR) {
+              if (Tcl_GetBooleanFromObj (interp, objv[++arg], &boolean) == TCL_ERROR) {
                   return TCL_ERROR;
               }
 
-              gstatus = yajl_gen_bool (hand, bool);
+              gstatus = yajl_gen_bool (hand, boolean);
               break;
           }
 
@@ -1154,11 +1155,7 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
 
     /* ARGSUSED */
 int
-yajltcl_yajlObjCmd(clientData, interp, objc, objv)
-    ClientData clientData;              /* registered proc hashtable ptr. */
-    Tcl_Interp *interp;                 /* Current interpreter. */
-    int objc;                           /* Number of arguments. */
-    Tcl_Obj   *CONST objv[];
+yajltcl_yajlObjCmd(ClientData clientData,Tcl_Interp* interp,int objc,Tcl_Obj *CONST *objv)
 {
     yajltcl_clientData *yajlData;
     int                 optIndex;

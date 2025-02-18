@@ -150,7 +150,7 @@ YAJL_LIBS	= @YAJL_LIBS@
 # yajl incorrectly specified $(prefix)/include/yajl in pkg-config. This
 # has been reported upstream as https://github.com/lloyd/yajl/pull/139.
 # Until it's fixed, we work around it and get to the parent directory.
-INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@ $(YAJL_CFLAGS) $(YAJL_CFLAGS)/..
+INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@ $(YAJL_CFLAGS)
 
 #INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@ @TK_INCLUDES@ @TK_XINCLUDES@
 

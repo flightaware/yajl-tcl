@@ -28,6 +28,7 @@ AC_INIT([yajltcl], [1.8.1])
 
 TEA_INIT([3.9])
 
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR(tclconfig)
 
 #--------------------------------------------------------------------
@@ -74,7 +75,7 @@ TEA_ADD_SOURCES([yajltcl.c tclyajltcl.c yajltcllex.c])
 TEA_ADD_HEADERS([])
 TEA_ADD_INCLUDES([])
 TEA_ADD_LIBS([])
-TEA_ADD_CFLAGS([])
+TEA_ADD_CFLAGS([-I .])
 TEA_ADD_STUB_SOURCES([])
 TEA_ADD_TCL_SOURCES([yajl.tcl])
 
