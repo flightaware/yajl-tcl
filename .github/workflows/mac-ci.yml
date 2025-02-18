@@ -18,6 +18,7 @@ jobs:
         brew update
         brew install tcl-tk@8 || true
         brew install yajl
+        brew install autoconf
     - name: configure	
       run: |
         autoreconf -vi
