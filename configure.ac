@@ -28,6 +28,7 @@ AC_INIT([yajltcl], [1.8.1])
 
 TEA_INIT([3.9])
 
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR(tclconfig)
 
 #--------------------------------------------------------------------
@@ -74,7 +75,7 @@ TEA_ADD_SOURCES([yajltcl.c tclyajltcl.c yajltcllex.c])
 TEA_ADD_HEADERS([])
 TEA_ADD_INCLUDES([])
 TEA_ADD_LIBS([])
-TEA_ADD_CFLAGS([])
+TEA_ADD_CFLAGS([-I .])
 TEA_ADD_STUB_SOURCES([])
 TEA_ADD_TCL_SOURCES([yajl.tcl])
 
@@ -190,6 +191,17 @@ TEA_PROG_TCLSH
 #--------------------------------------------------------------------
 PKG_CHECK_MODULES([YAJL], [yajl >= 2.0], [],
     [AC_MSG_ERROR([Cannot find yajl])])
+
+
+#--------------------------------------------------------------------
+# Libtools define MODULE_SCOPE in a way that clashes with the same
+# preprocessor macro defined in Tcl9's tcl.h. This leads to 
+# compilation errors. The only solution I could come up with is to
+# tell autoconf to adopt the same MODULE_SCOPE definition. This may
+# break in the future though. Anyone with a better solution please
+# step forward
+#--------------------------------------------------------------------
+AC_DEFINE([MODULE_SCOPE], [extern], [Define module scope visibility])
 
 AC_CONFIG_FILES([Makefile pkgIndex.tcl])
 AC_OUTPUT

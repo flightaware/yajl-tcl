@@ -8,6 +8,7 @@
  */
 
 #include <tcl.h>
+#include "config.h"
 #include "yajltcl.h"
 
 #undef TCL_STORAGE_CLASS
