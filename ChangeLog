@@ -1,3 +1,10 @@
+2025-09-08 mxmanghi
+    * renaming variable 'bool' as this is now a reserved word
+    in C23 compliant compilers (e.g. gcc-15)
+    * explicitly defining MODULE_SCOPE in configure.ac to avoid
+    clashing with Tcl9 of same preprocessor symbol
+    * turning CONST symbols into regular const's C language definition
+
 2023-11-21 mxmanghi
     * Increment to 1.8.1 to mark changes introduced to 
       build with Tcl 9.0
