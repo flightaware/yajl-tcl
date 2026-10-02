@@ -63,36 +63,6 @@ boolean_callback (void *context, int boolean)
     return 1;
 }
 
-/* integer_callback - append the string "integer" to the list being formed
- * on the result object followed by an integer value
- *
- * note that for newer yajl it's a long but for older, a long long
- */
-static int
-integer_callback (void *context, long long integerVal)
-{
-    static const char integerStr[] = "integer";
-    yajltcl_clientData *yajlData = context;
-    Tcl_Interp *interp = yajlData->interp;
-
-    append_result_list (interp, integerStr, sizeof integerStr - 1, Tcl_NewLongObj(integerVal));
-    return 1;
-}
-
-/* double_callback - append the string "double" to the list being formed
- * on the result object followed by an double-precision floating point value
- */
-static int
-double_callback (void *context, double doubleVal)
-{
-    static const char doubleStr[] = "double";
-    yajltcl_clientData *yajlData = context;
-    Tcl_Interp *interp = yajlData->interp;
-
-    append_result_list (interp, doubleStr, sizeof doubleStr - 1, Tcl_NewDoubleObj(doubleVal));
-    return 1;
-}
-
 /* number_callback - append the string "number" to the list being formed
  * on the result object followed by a string (!) containing a number of some
  * kind or another
@@ -196,8 +166,8 @@ array_end_callback (void *context)
 static yajl_callbacks callbacks = {
     null_callback,
     boolean_callback,
-    integer_callback,
-    double_callback,
+    NULL,
+    NULL,
     number_callback,
     string_callback,
     map_start_callback,
@@ -1034,6 +1004,10 @@ yajltcl_yajlObjectObjCmd(ClientData cData, Tcl_Interp *interp, int objc, Tcl_Obj
                   yajl_free_error (parseHandle, str);
                   return TCL_ERROR;
               }
+
+	      // Parse needs to complete because otherwise integers at EOF are
+	      // missed 
+	      yajl_complete_parse (parseHandle);
 
 	      // parse2dict or parse2dictex? set the Tcl result to
 	      // the dynamic string we've been building
