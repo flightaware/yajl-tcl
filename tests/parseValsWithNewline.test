@@ -1,0 +1,70 @@
+# -*- tcl -*-
+
+package require tcltest
+package require yajltcl
+
+namespace import ::tcltest::*
+
+namespace eval ::yajl::test {
+
+	proc parseVal {value} {
+        yajl create x
+
+        set parsed [x parse $value]
+        x reset
+
+        return $parsed
+	}
+
+	test 1.01 {: Parse string with space
+	} -body {
+        parseVal {"Some string" }
+	} -result {string {Some string}}
+
+	test 1.02 {: Parse string at EOF
+	} -body {
+        parseVal {"Some string"}
+	} -result {string {Some string}}
+
+	test 1.03 {: Parse number with space
+	} -body {
+        parseVal {1 }
+	} -result {number 1}
+
+	test 1.04 {: Parse number at EOF
+	} -body {
+        parseVal {1}
+	} -result {number 1}
+
+	test 1.05 {: Parse true boolean with space
+	} -body {
+        parseVal {true }
+	} -result {bool 1}
+
+	test 1.06 {: Parse true boolean at EOF
+	} -body {
+        parseVal {true}
+	} -result {bool 1}
+
+	test 1.07 {: Parse false boolean with space
+	} -body {
+        parseVal {false }
+	} -result {bool 0}
+
+	test 1.08 {: Parse false boolean at EOF
+	} -body {
+        parseVal {false}
+	} -result {bool 0}
+
+	test 1.09 {: Parse null with space
+	} -body {
+        parseVal {null }
+	} -result null
+
+	test 1.10 {: Parse null at EOF
+	} -body {
+        parseVal {null}
+	} -result null
+}
+
+cleanupTests
