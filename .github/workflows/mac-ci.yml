@@ -22,9 +22,8 @@ jobs:
     - name: configure	
       run: |
         autoreconf -vi
-        echo @DEBUG@
-        ls /opt/homebrew/Cellar/tcl-tk@8/8.6.16/lib
-        ./configure --with-tcl=/opt/homebrew/Cellar/tcl-tk@8/8.6.16/lib --prefix=/usr/local
+        PREFIX=/opt/homebrew/opt/tcl-tk@8
+        ./configure --with-tcl=$PREFIX --prefix=/usr/local
     - name: make
       run: make
     - name: install
