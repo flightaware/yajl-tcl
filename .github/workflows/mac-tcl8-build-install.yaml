@@ -27,7 +27,7 @@ jobs:
         ls $PREFIX $PREFIX/lib
         echo @DEBUG@ cat $PREFIX/lib/tclConfig.sh
         cat $PREFIX/lib/tclConfig.sh
-        ./configure --with-tcl=$PREFIX/lib --prefix=$PREFIX
+        ./configure --with-tcl=$PREFIX/lib --prefix=/usr/local
     - name: make
       run: make
     - name: install
