@@ -25,6 +25,8 @@ jobs:
         PREFIX=/opt/homebrew/opt/tcl-tk@8
         echo @DEBUG@ ls $PREFIX $PREFIX/lib
         ls $PREFIX $PREFIX/lib
+        echo @DEBUG@ cat $PREFIX/lib/tclConfig.sh
+        cat $PREFIX/lib/tclConfig.sh
         ./configure --with-tcl=$PREFIX/lib --prefix=$PREFIX
     - name: make
       run: make
