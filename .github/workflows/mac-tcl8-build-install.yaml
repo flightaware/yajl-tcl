@@ -23,10 +23,12 @@ jobs:
       run: |
         autoreconf -vi
         PREFIX=/opt/homebrew/opt/tcl-tk@8
-        echo @DEBUG@ ls $PREFIX $PREFIX/lib
-        ls $PREFIX $PREFIX/lib
+        echo @DEBUG@ file $PREFIX/lib/*.dylib
+        file $PREFIX/lib/*.dylib
         echo @DEBUG@ cat $PREFIX/lib/tclConfig.sh
         cat $PREFIX/lib/tclConfig.sh
+        export LDFLAGS=-L$PREFIX/lib
+        export CPPFLAGS=-I$PREFIX/include
         ./configure --with-tcl=$PREFIX/lib --prefix=/usr/local
     - name: make
       run: make
