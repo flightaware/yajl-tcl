@@ -27,6 +27,8 @@ jobs:
         ls $PREFIX $PREFIX/lib
         echo @DEBUG@ file $PREFIX/lib/*.dylib $PREFIX/lib/*stub*
         file $PREFIX/lib/*.dylib $PREFIX/lib/*stub*
+        echo @DEBUG@ lipo -archs $PREFIX/lib/*stub*
+        lipo -archs $PREFIX/lib/*stub*
         echo @DEBUG@ cat $PREFIX/lib/tclConfig.sh
         cat $PREFIX/lib/tclConfig.sh
         export LDFLAGS=-L$PREFIX/lib
