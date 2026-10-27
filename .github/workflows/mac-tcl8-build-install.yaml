@@ -19,11 +19,11 @@ jobs:
         brew install autoconf
         brew reinstall tcl-tk@8
         brew install yajl
-    - name: configure	
+    - name: configure
       run: |
         autoreconf -vi
         PREFIX=/opt/homebrew/opt/tcl-tk@8
-	ls $PREFIX
+        ls $PREFIX
         ./configure --with-tcl=$PREFIX/lib --prefix=$PREFIX
     - name: make
       run: make
