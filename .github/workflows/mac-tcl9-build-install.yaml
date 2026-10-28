@@ -23,10 +23,8 @@ jobs:
       run: |
         autoreconf -vi
         PREFIX=/opt/homebrew/opt/tcl-tk@9
-        echo "@DEBUG ls $PREFIX/lib"
-        ls $PREFIX/lib
-        echo "@DEBUG END"
-        VER="`ls $PREFIX/lib | sed -n '/libtcl\(9.*\)\.dylib/s//\1/p'`"
+        VER="`ls $PREFIX/lib | sed -n '/libtcl\(9\.[0-9]*\)\.dylib/s//\1/p'`"
+        echo "@DEBUG VER=$VER"
         export LDFLAGS=-L$PREFIX/lib
         export LIBS=-ltcl$VER
         export CPPFLAGS=-I$PREFIX/include
