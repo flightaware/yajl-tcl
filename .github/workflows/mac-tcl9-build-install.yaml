@@ -1,0 +1,36 @@
+name: Mac Tcl9 Build Install
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        brew update
+        brew install autoconf
+        brew install tcl-tk@9
+        brew install yajl
+    - name: configure
+      run: |
+        autoreconf -vi
+        PREFIX=/opt/homebrew/opt/tcl-tk@9
+        export LDFLAGS=-L$PREFIX/lib
+        export LIBS=-ltcl9.0
+        export CPPFLAGS=-I$PREFIX/include
+        ./configure --with-tcl=$PREFIX/lib --prefix=/usr/local
+    - name: make
+      run: make
+    - name: install
+      run: sudo make install
+    - name: test
+      run: make test
+
