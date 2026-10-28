@@ -23,6 +23,9 @@ jobs:
       run: |
         autoreconf -vi
         PREFIX=/opt/homebrew/opt/tcl-tk@9
+        echo "@DEBUG ls $PREFIX/lib"
+        ls $PREFIX/lib
+        echo "@DEBUG END"
         export LDFLAGS=-L$PREFIX/lib
         export LIBS=-ltcl9.0
         export CPPFLAGS=-I$PREFIX/include
