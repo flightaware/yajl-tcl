@@ -26,7 +26,7 @@ jobs:
         export LDFLAGS=-L$PREFIX/lib
         export LIBS=-ltcl9.0
         export CPPFLAGS=-I$PREFIX/include
-        ./configure --with-tcl=$PREFIX/lib --prefix=/usr/local
+        ./configure --with-tcl=$PREFIX/lib --prefix=/usr/local || (cat config.log; false)
     - name: make
       run: make
     - name: install
