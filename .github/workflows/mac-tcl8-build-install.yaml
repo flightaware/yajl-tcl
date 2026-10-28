@@ -31,7 +31,7 @@ jobs:
         ls $PREFIX/lib/*stub*.a | xargs -L 1 lipo -archs
         echo @DEBUG@ cat $PREFIX/lib/tclConfig.sh
         cat $PREFIX/lib/tclConfig.sh
-        export LDFLAGS=-L$PREFIX/lib
+        export LDFLAGS="-L$PREFIX/lib -ltcl8.6"
         export CPPFLAGS=-I$PREFIX/include
         ./configure --with-tcl=$PREFIX/lib --prefix=/usr/local
     - name: make
