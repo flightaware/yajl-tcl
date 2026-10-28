@@ -23,15 +23,8 @@ jobs:
       run: |
         autoreconf -vi
         PREFIX=/opt/homebrew/opt/tcl-tk@8
-        echo @DEBUG@ ls $PREFIX $PREFIX/lib
-        ls $PREFIX $PREFIX/lib
-        echo @DEBUG@ file $PREFIX/lib/*.dylib $PREFIX/lib/*stub*
-        file $PREFIX/lib/*.dylib $PREFIX/lib/*stub*
-        echo @DEBUG@ lipo -archs "$PREFIX/lib/*stub*.a"
-        ls $PREFIX/lib/*stub*.a | xargs -L 1 lipo -archs
-        echo @DEBUG@ cat $PREFIX/lib/tclConfig.sh
-        cat $PREFIX/lib/tclConfig.sh
-        export LDFLAGS="-L$PREFIX/lib -ltcl8.6"
+        export LDFLAGS=-L$PREFIX/lib
+        export LIBS=-ltcl8.6
         export CPPFLAGS=-I$PREFIX/include
         ./configure --with-tcl=$PREFIX/lib --prefix=/usr/local
     - name: make
