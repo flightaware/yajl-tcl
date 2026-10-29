@@ -35,8 +35,5 @@ jobs:
     - name: install
       run: sudo make install
     - name: test
-      run: |
-        echo "@DEBUG find /private/tmp -name tcl9.1.0"
-        find /private/tmp -name tcl9.1.0
-        make test
+      run: make test
 
