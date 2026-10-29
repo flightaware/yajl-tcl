@@ -23,19 +23,13 @@ jobs:
       run: |
         autoreconf -vi
         PREFIX=/opt/homebrew/opt/tcl-tk@9
-        echo "@DEBUG find $PREFIX/. -name init.tcl"
-        find $PREFIX/. -name init.tcl
-        echo "@DEBUG find /opt/homebrew -name init.tcl"
-        find /opt/homebrew -name init.tcl
         VER="`ls $PREFIX/lib | sed -n '/libtcl\(9\.[0-9]*\)\.dylib/s//\1/p'`"
-        echo "@DEBUG VER=$VER"
         export LDFLAGS=-L$PREFIX/lib
         export LIBS=-ltcl$VER
         export CPPFLAGS=-I$PREFIX/include
         ./configure --with-tcl=$PREFIX/lib --prefix=/usr/local || (cat config.log; false)
+        # Patch this because configure finds it in the /tmp source coide that gets deleted.
         sed -I "" 's%TCL_LIBRARY=`.*`'"%TCL_LIBRARY='$PREFIX/lib/tcl$VER'%" Makefile
-        echo "@DEBUG@ grep TCL_LIBRARY Makefile"
-        grep TCL_LIBRARY Makefile
     - name: make
       run: make
     - name: install
