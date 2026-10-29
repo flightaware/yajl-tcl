@@ -23,8 +23,10 @@ jobs:
       run: |
         autoreconf -vi
         PREFIX=/opt/homebrew/opt/tcl-tk@9
-        echo "@DEBUG find $PREFIX -name init.tcl"
-        find $PREFIX -name init.tcl
+        echo "@DEBUG find $PREFIX/. -name init.tcl"
+        find $PREFIX/. -name init.tcl
+        echo "@DEBUG find /opt/homebrew -name init.tcl"
+        find /opt/homebrew -name init.tcl
         VER="`ls $PREFIX/lib | sed -n '/libtcl\(9\.[0-9]*\)\.dylib/s//\1/p'`"
         echo "@DEBUG VER=$VER"
         export LDFLAGS=-L$PREFIX/lib
