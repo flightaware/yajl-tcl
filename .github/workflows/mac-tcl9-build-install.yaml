@@ -36,5 +36,8 @@ jobs:
     - name: install
       run: sudo make install
     - name: test
-      run: make test
+      run: |
+	echo "@DEBUG find /private/tmp -name init.tcl"
+	find /private/tmp -name init.tcl
+	make test
 
