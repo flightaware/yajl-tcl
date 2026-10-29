@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions	
 
-name: Linux CI	
+name: Linux Tcl9 Build Install
 
 # Controls when the action will run. 	
 on:	
@@ -13,21 +13,21 @@ on:
 jobs:	
   build:	
 
-    runs-on: ubuntu-latest	
+    runs-on: ubuntu-26.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
         sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
         sudo apt-get update -qq
         sudo apt-get install -y gcc-11 g++-11
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
-        sudo apt-get install -y tcl8.6-dev tcllib libyajl-dev
+        sudo apt-get install -y tcl9.0-dev tcllib libyajl-dev
     - name: configure	
       run: |       	
         autoreconf -vi	
-        ./configure --with-tcl=/usr/lib/tcl8.6	
+        ./configure --with-tcl=/usr/lib/tcl9.0
     - name: make	
       run: make	
     - name: install	
