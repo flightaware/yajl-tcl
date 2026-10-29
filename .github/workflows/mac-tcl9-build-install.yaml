@@ -33,7 +33,7 @@ jobs:
         export LIBS=-ltcl$VER
         export CPPFLAGS=-I$PREFIX/include
         ./configure --with-tcl=$PREFIX/lib --prefix=/usr/local || (cat config.log; false)
-        sed -I "" 's%TCL_LIBRARY=`.*`'"%TCL_LIBRARY='$PREFIX/lib'%" Makefile
+        sed -I "" 's%TCL_LIBRARY=`.*`'"%TCL_LIBRARY='$PREFIX/lib/tcl$VER'%" Makefile
         echo "@DEBUG@ grep TCL_LIBRARY Makefile"
         grep TCL_LIBRARY Makefile
     - name: make
